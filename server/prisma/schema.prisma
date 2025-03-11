@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Logs {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  action     String   @db.Text
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  users      Users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "logs_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model Payments {
+  id             Int                     @id @default(autoincrement())
+  receipt_number String                  @unique(map: "receipt_number") @db.VarChar(50)
+  tax_id         Int
+  agent_id       Int
+  pos_id         Int
+  amount         Decimal                 @db.Decimal(10, 2)
+  reason         String                  @db.Text
+  payment_method PaymentsPaymentMethod   @default(cash)
+  payment_date   DateTime                @default(now()) @db.Timestamp(0)
+  taxes          Taxes                   @relation(fields: [tax_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_1")
+  users          Users                   @relation(fields: [agent_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_2")
+  pos_devices    PosDevices              @relation(fields: [pos_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_3")
+
+  @@index([agent_id], map: "agent_id")
+  @@index([pos_id], map: "pos_id")
+  @@index([tax_id], map: "tax_id")
+}
+
+model Permissions {
+  id               Int                @id @default(autoincrement())
+  name             String             @unique(map: "name") @db.VarChar(255)
+  user_permissions UserPermissions[]
+}
+
+model PosDevices {
+  id          Int        @id @default(autoincrement())
+  agent_id    Int
+  device_name String     @db.VarChar(255)
+  location    String?    @db.VarChar(255)
+  created_at  DateTime   @default(now()) @db.Timestamp(0)
+  payments    Payments[]
+}
+
+model Taxes {
+  id         Int        @id @default(autoincrement())
+  name       String     @unique(map: "name") @db.VarChar(255)
+  type       TaxesType
+  amount     Decimal?   @db.Decimal(10, 2)
+  created_at DateTime   @default(now()) @db.Timestamp(0)
+  payments   Payments[]
+}
+
+model UserPermissions {
+  user_id       Int
+  permission_id Int
+  users         Users       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_permissions_ibfk_1")
+  permissions   Permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_permissions_ibfk_2")
+
+  @@id([user_id, permission_id])
+  @@index([permission_id], map: "permission_id")
+}
+
+model Users {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar(255)
+  last_name        String             @db.VarChar(255)
+  email            String             @unique(map: "email") @db.VarChar(255)
+  password         String             @db.VarChar(255)
+  role             UsersRole          @default(agent)
+  status           UsersStatus        @default(active)
+  created_at       DateTime           @default(now()) @db.Timestamp(0)
+  updated_at       DateTime           @default(now()) @db.Timestamp(0)
+  logs             Logs[]
+  payments         Payments[]
+  user_permissions UserPermissions[]
+}
+
+enum TaxesType {
+  fixed
+  variable
+}
+
+enum UsersRole {
+  admin
+  agent
+}
+
+enum UsersStatus {
+  active
+  inactive
+}
+
+enum PaymentsPaymentMethod {
+  cash
+}
