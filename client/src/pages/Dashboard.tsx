@@ -1,19 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { CreditCard, LogOut, Plus, Receipt, User } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Textarea } from "@/components/ui/textarea";
+
+import * as yup from "yup";
+
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -26,15 +29,44 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import MainContainer from "@/layout";
 
+const schema = yup.object().shape({
+  noPlaque: yup.string().required("Le numéro de plaque est requis"),
+  denomination: yup.string().required("La dénomination est requise"),
+  montant: yup
+    .number()
+    .required("Le montant est requis")
+    .positive("Le montant doit être positif"),
+  motif: yup.string().required("Le motif est requis"),
+});
+
+const taxes = [
+  { id: 1, label: "Taxe 1" },
+  { id: 2, label: "Taxe 2" },
+  { id: 3, label: "Taxe 3" },
+];
+
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
-  const handleSubmit = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
+  const onSubmit = (data: {
+    noPlaque: string;
+    denomination: string;
+    montant: number;
+    motif: string;
+  }) => {
     setIsSubmitting(true);
 
     // Simulate form submission
+    console.log(data, isSubmitting);
+
     setTimeout(() => {
       setIsSubmitting(false);
       // Show success message or redirect
@@ -50,7 +82,7 @@ export default function DashboardPage() {
       <div className="flex min-h-screen flex-col">
         <header className="sticky top-0 z-10 border-b bg-background">
           <div className="container flex h-16 items-center justify-between px-4">
-            <h1 className="text-lg font-semibold">Tax Payment System</h1>
+            <h1 className="text-lg font-semibold">EasyPos</h1>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />
@@ -69,7 +101,7 @@ export default function DashboardPage() {
               <h2 className="text-2xl font-bold tracking-tight">
                 Welcome, User
               </h2>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" className="gap-1">
                   <Receipt className="h-4 w-4" />
                   View History
@@ -78,7 +110,7 @@ export default function DashboardPage() {
                   <Plus className="h-4 w-4" />
                   New Payment
                 </Button>
-              </div>
+              </div> */}
             </div>
 
             <Tabs defaultValue="new-payment" className="w-full">
@@ -96,132 +128,138 @@ export default function DashboardPage() {
                       Fill in the details to process your tax payment
                     </CardDescription>
                   </CardHeader>
-                  <form onSubmit={handleSubmit}>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Tax Information</h3>
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div className="grid gap-2">
-                            <Label htmlFor="tax-type">Tax Type</Label>
-                            <Select required>
-                              <SelectTrigger id="tax-type">
-                                <SelectValue placeholder="Select tax type" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="income">
-                                  Income Tax
-                                </SelectItem>
-                                <SelectItem value="property">
-                                  Property Tax
-                                </SelectItem>
-                                <SelectItem value="sales">Sales Tax</SelectItem>
-                                <SelectItem value="vat">VAT</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="tax-period">Tax Period</Label>
-                            <Select required>
-                              <SelectTrigger id="tax-period">
-                                <SelectValue placeholder="Select period" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="q1-2025">Q1 2025</SelectItem>
-                                <SelectItem value="q2-2025">Q2 2025</SelectItem>
-                                <SelectItem value="q3-2025">Q3 2025</SelectItem>
-                                <SelectItem value="q4-2025">Q4 2025</SelectItem>
-                                <SelectItem value="annual-2025">
-                                  Annual 2025
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="tax-amount">Amount</Label>
-                          <Input
-                            id="tax-amount"
-                            type="number"
-                            placeholder="0.00"
-                            required
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="tax-reference">
-                            Reference Number
-                          </Label>
-                          <Input
-                            id="tax-reference"
-                            placeholder="e.g. TX-12345"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-medium">Payment Method</h3>
-                        <RadioGroup defaultValue="card">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="card" id="payment-card" />
-                            <Label
-                              htmlFor="payment-card"
-                              className="flex items-center gap-2"
-                            >
-                              <CreditCard className="h-4 w-4" />
-                              Credit/Debit Card
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="bank" id="payment-bank" />
-                            <Label htmlFor="payment-bank">Bank Transfer</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem
-                              value="mobile"
-                              id="payment-mobile"
-                            />
-                            <Label htmlFor="payment-mobile">
-                              Mobile Payment
-                            </Label>
-                          </div>
-                        </RadioGroup>
-
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div className="grid gap-2">
-                            <Label htmlFor="card-number">Card Number</Label>
+                  <div className="flex justify-center items-center min-h-1/2 bg-gray-100 p-4">
+                    <form
+                      onSubmit={handleSubmit(onSubmit)}
+                      className="w-full max-w-md bg-white p-6 rounded-lg shadow-md"
+                    >
+                      {/* Champ No Plaque */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="noPlaque"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          No Plaque
+                        </label>
+                        <Controller
+                          name="noPlaque"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
                             <Input
-                              id="card-number"
-                              placeholder="1234 5678 9012 3456"
+                              {...field}
+                              id="noPlaque"
+                              placeholder="Entrez le numéro de plaque"
+                              className="w-full"
                             />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="card-name">Name on Card</Label>
-                            <Input id="card-name" placeholder="John Doe" />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="card-expiry">Expiry Date</Label>
-                            <Input id="card-expiry" placeholder="MM/YY" />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="card-cvc">CVC</Label>
-                            <Input id="card-cvc" placeholder="123" />
-                          </div>
-                        </div>
+                          )}
+                        />
+                        {errors.noPlaque && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {errors.noPlaque.message}
+                          </p>
+                        )}
                       </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button
-                        type="submit"
-                        className="w-full"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? "Processing..." : "Process Payment"}
+
+                      <div className="mb-4">
+                        <label
+                          htmlFor="denomination"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Dénomination
+                        </label>
+                        <Controller
+                          name="denomination"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Sélectionnez une taxe" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {taxes.map((tax) => (
+                                  <SelectItem key={tax.id} value={tax.label}>
+                                    {tax.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        {errors.denomination && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {errors.denomination.message}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Champ Montant */}
+                      <div className="mb-4">
+                        <label
+                          htmlFor="montant"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Montant
+                        </label>
+                        <Controller
+                          name="montant"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              type="number"
+                              id="montant"
+                              placeholder="Entrez le montant"
+                              className="w-full"
+                            />
+                          )}
+                        />
+                        {errors.montant && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {errors.montant.message}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Champ Motif */}
+                      <div className="mb-6">
+                        <label
+                          htmlFor="motif"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Motif
+                        </label>
+                        <Controller
+                          name="motif"
+                          control={control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Textarea
+                              {...field}
+                              id="motif"
+                              placeholder="Entrez le motif"
+                              className="w-full"
+                            />
+                          )}
+                        />
+                        {errors.motif && (
+                          <p className="text-sm text-red-500 mt-1">
+                            {errors.motif.message}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Bouton de soumission */}
+                      <Button type="submit" className="w-full">
+                        Soumettre
                       </Button>
-                    </CardFooter>
-                  </form>
+                    </form>
+                  </div>
                 </Card>
               </TabsContent>
               <TabsContent value="payment-history" className="mt-6">
@@ -234,36 +272,64 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="rounded-md border">
-                      <div className="grid grid-cols-5 p-4 font-medium">
+                      {/* En-tête du tableau (visible uniquement sur les grands écrans) */}
+                      <div className="hidden md:grid md:grid-cols-5 p-4 font-medium">
                         <div>Date</div>
                         <div>Reference</div>
                         <div>Tax Type</div>
                         <div>Amount</div>
                         <div>Status</div>
                       </div>
-                      <Separator />
-                      <div className="grid grid-cols-5 p-4">
+                      <Separator className="hidden md:block" />
+
+                      {/* Ligne 1 */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
+                        <div className="font-medium md:hidden">Date</div>
                         <div>2025-03-10</div>
-                        <div>TX-12345</div>
-                        <div>Income Tax</div>
-                        <div>$1,250.00</div>
-                        <div className="text-green-500">Completed</div>
+                        <div className="font-medium md:hidden">Reference</div>
+                        <div className="md:col-span-1">TX-12345</div>
+                        <div className="font-medium md:hidden">Tax Type</div>
+                        <div className="md:col-span-1">Income Tax</div>
+                        <div className="font-medium md:hidden">Amount</div>
+                        <div className="md:col-span-1">$1,250.00</div>
+                        <div className="font-medium md:hidden">Status</div>
+                        <div className="text-green-500 md:col-span-1">
+                          Completed
+                        </div>
                       </div>
                       <Separator />
-                      <div className="grid grid-cols-5 p-4">
+
+                      {/* Ligne 2 */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
+                        <div className="font-medium md:hidden">Date</div>
                         <div>2025-02-15</div>
-                        <div>TX-12344</div>
-                        <div>Property Tax</div>
-                        <div>$850.00</div>
-                        <div className="text-green-500">Completed</div>
+                        <div className="font-medium md:hidden">Reference</div>
+                        <div className="md:col-span-1">TX-12344</div>
+                        <div className="font-medium md:hidden">Tax Type</div>
+                        <div className="md:col-span-1">Property Tax</div>
+                        <div className="font-medium md:hidden">Amount</div>
+                        <div className="md:col-span-1">$850.00</div>
+                        <div className="font-medium md:hidden">Status</div>
+                        <div className="text-green-500 md:col-span-1">
+                          Completed
+                        </div>
                       </div>
                       <Separator />
-                      <div className="grid grid-cols-5 p-4">
+
+                      {/* Ligne 3 */}
+                      <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
+                        <div className="font-medium md:hidden">Date</div>
                         <div>2025-01-20</div>
-                        <div>TX-12343</div>
-                        <div>VAT</div>
-                        <div>$320.00</div>
-                        <div className="text-green-500">Completed</div>
+                        <div className="font-medium md:hidden">Reference</div>
+                        <div className="md:col-span-1">TX-12343</div>
+                        <div className="font-medium md:hidden">Tax Type</div>
+                        <div className="md:col-span-1">VAT</div>
+                        <div className="font-medium md:hidden">Amount</div>
+                        <div className="md:col-span-1">$320.00</div>
+                        <div className="font-medium md:hidden">Status</div>
+                        <div className="text-green-500 md:col-span-1">
+                          Completed
+                        </div>
                       </div>
                     </div>
                   </CardContent>

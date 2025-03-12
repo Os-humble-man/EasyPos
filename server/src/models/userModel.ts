@@ -2,8 +2,6 @@ import bcrypt from "bcrypt";
 import prisma from "../_core/database";
 import jwt from "jsonwebtoken";
 
-import { logger } from "../_core/Logger";
-
 export const userModel = {
   createUser: async (data: {
     firstName: string;
