@@ -1,45 +1,19 @@
-import { NextFunction, Request, Response } from "express";
-import { logger } from "../_core/Logger";
-import { JwtHelper } from "../utils/JwtHelper";
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
 
-interface AuthRequest extends Request {
-  user?: any;
-}
-
-const authMiddleware = async (
-  req: AuthRequest,
+export const authenticate = (
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const token = req.header("Authorization")?.split(" ")[1];
+  if (!token) return res.status(401).json({ message: "Access forbidden" });
+
   try {
-    const authorizationHeader = req.headers.authorization;
-    if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
-      throw logger.error("Missing or wrong Authorization request header");
-    }
-
-    const accessToken = authorizationHeader
-      .replace(/Bearer/gi, "")
-      .replace(/ /g, "");
-
-    let credentials: any = {};
-
-    try {
-      credentials = JwtHelper.verifyToken(accessToken);
-    } catch (error: any) {
-      if (error.name === "TokenExpiredError") {
-        credentials = await JwtHelper.decodeToken(accessToken);
-        logger.warn("Token expired, refreshing token");
-      } else {
-        throw error;
-      }
-    }
-
-    req.user = accessToken;
-
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    (req as any).user = decoded;
     next();
-  } catch (error: any) {
-    next(error);
+  } catch (error) {
+    res.status(401).json({ message: "Expired or invalid token" });
   }
 };
-
-export { authMiddleware };

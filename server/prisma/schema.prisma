@@ -83,6 +83,15 @@ model Users {
   logs             Logs[]
   payments         Payments[]
   user_permissions UserPermissions[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  token     String   @unique
+  expiresAt DateTime
+  user      Users     @relation(fields: [userId], references: [id])
 }
 
 enum TaxesType {
