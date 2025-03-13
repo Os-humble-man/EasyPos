@@ -19,6 +19,13 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import UserService from "@/services/userService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface FormData {
   firstName: string;
@@ -148,6 +155,25 @@ export default function RegisterPage() {
               {errors.email && (
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="role">Role</Label>
+              <Select
+              // value={newUser.role}
+              // onValueChange={(value) =>
+              //   setNewUser({ ...newUser, role: value })
+              // }
+              >
+                <SelectTrigger id="role">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="User">User</SelectItem>
+                  <SelectItem value="Manager">Manager</SelectItem>
+                  <SelectItem value="Admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
