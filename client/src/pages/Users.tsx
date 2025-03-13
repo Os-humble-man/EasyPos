@@ -15,7 +15,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -55,7 +54,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -70,6 +69,16 @@ interface UserPermissions {
   manageUsers: boolean;
   manageTaxes: boolean;
 }
+
+type FormValues = {
+  role?: string;
+  status?: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  confirmPassword: string;
+};
 
 interface UserPermissions {
   makePayments: boolean;
@@ -87,14 +96,6 @@ interface User {
   status: string;
   lastLogin: string;
   permissions: UserPermissions;
-}
-
-interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
 }
 
 interface User {
@@ -169,6 +170,8 @@ const schema = yup.object().shape({
   firstName: yup.string().required("First name is required"),
   lastName: yup.string().required("Last name is required"),
   email: yup.string().email("Invalid email").required("Email is required"),
+  role: yup.string().optional(),
+  status: yup.string().optional(),
   password: yup
     .string()
     .min(6, "Password must be at least 6 characters")
@@ -189,10 +192,11 @@ export default function UsersPage() {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
   });
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState<
     (typeof initialUsers)[0] | null
@@ -265,7 +269,7 @@ export default function UsersPage() {
         if (user.id === userId) {
           return {
             ...user,
-            status: user.status === "Active" ? "Inactive" : "Active",
+            status: user.status === "active" ? "inactive" : "active",
           };
         }
         return user;
@@ -289,20 +293,17 @@ export default function UsersPage() {
     setIsPermissionsOpen(true);
   };
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       setIsLoading(true);
-      const user = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-      };
-      const response = await UserService.createUser(user);
+
+      const response = await UserService.createUser(data);
+
       if (response.status === 201) {
         console.log("User created successfully");
         setIsLoading(false);
-        navigate("/dashboard");
+        setIsAddUserOpen(false);
+        reset();
       }
     } catch (error) {
       console.error(error);
@@ -324,74 +325,16 @@ export default function UsersPage() {
                 Add User
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[425px] ">
               <DialogHeader>
                 <DialogTitle>Add New User</DialogTitle>
                 <DialogDescription>
                   Create a new user account with default permissions.
                 </DialogDescription>
               </DialogHeader>
-              {/* <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={newUser.name}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) =>
-                      setNewUser({ ...newUser, email: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select
-                    value={newUser.role}
-                    onValueChange={(value) =>
-                      setNewUser({ ...newUser, role: value })
-                    }
-                  >
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="User">User</SelectItem>
-                      <SelectItem value="Manager">Manager</SelectItem>
-                      <SelectItem value="Admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={newUser.status}
-                    onValueChange={(value) =>
-                      setNewUser({ ...newUser, status: value })
-                    }
-                  >
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div> */}
-              <CardContent className="grid gap-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
+              <CardContent className="grid gap-4  w-full">
+                <div className="grid grid-cols-2 gap-4 ">
+                  <div className="grid ">
                     <Label htmlFor="first-name">First name</Label>
                     <Controller
                       name="firstName"
@@ -449,39 +392,48 @@ export default function UsersPage() {
                 <div className="grid grid-cols-2 gap-4  py-4 w-full">
                   <div className="w-full grid gap-2">
                     <Label htmlFor="role">Role</Label>
-                    <Select
-                      value={newUser.role}
-                      onValueChange={(value) =>
-                        setNewUser({ ...newUser, role: value })
-                      }
-                    >
-                      <SelectTrigger id="role" className="w-full">
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="User">User</SelectItem>
-                        <SelectItem value="Manager">Manager</SelectItem>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="role"
+                      control={control}
+                      defaultValue="agent"
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger id="role" className="w-full">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="agent">Agent</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </div>
 
                   <div className="w-full grid gap-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={newUser.status}
-                      onValueChange={(value) =>
-                        setNewUser({ ...newUser, status: value })
-                      }
-                    >
-                      <SelectTrigger id="status" className="w-full">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="status"
+                      control={control}
+                      defaultValue="active"
+                      render={({ field }) => (
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger id="status" className="w-full">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </div>
                 </div>
 

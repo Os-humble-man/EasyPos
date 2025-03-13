@@ -7,6 +7,7 @@ import AdminDashboardPage from "./pages/admin/dashboard";
 import UsersPage from "./pages/Users";
 import TaxesPage from "./pages/Taxes";
 import POSPage from "./pages/Pos";
+import InvoicePage from "./components/Invoice";
 // import About from "./pages/About";
 // import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,7 @@ const App: React.FC = () => {
         <Route path="/admin/users" element={<UsersPage />} />
         <Route path="/admin/taxes" element={<TaxesPage />} />
         <Route path="/admin/pos" element={<POSPage />} />
+        <Route path="/invoice" element={<InvoicePage />} />
 
         {/* <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} /> */}

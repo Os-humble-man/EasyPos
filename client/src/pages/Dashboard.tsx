@@ -97,7 +97,7 @@ export default function DashboardPage() {
         </header>
         <main className="flex-1 container py-6">
           <div className="grid gap-6">
-            <div className="flex items-center justify-between">
+            <div className=" items-center justify-between hidden md:flex">
               <h2 className="text-2xl font-bold tracking-tight">
                 Welcome, User
               </h2>

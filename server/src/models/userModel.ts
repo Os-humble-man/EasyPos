@@ -2,11 +2,15 @@ import bcrypt from "bcrypt";
 import prisma from "../_core/database";
 import jwt from "jsonwebtoken";
 
+import { UsersStatus, UsersRole, Users } from "@prisma/client";
+
 export const userModel = {
   createUser: async (data: {
     firstName: string;
     lastName: string;
     email: string;
+    role: string;
+    status: string;
     password: string;
   }) => {
     try {
@@ -16,6 +20,8 @@ export const userModel = {
           name: data.firstName,
           last_name: data.lastName,
           email: data.email,
+          role: data.role as UsersRole,
+          status: data.status as UsersStatus,
           password: hashedPassword,
         },
       });
@@ -59,6 +65,53 @@ export const userModel = {
       return decoded.userId;
     } catch (error: Error | any) {
       throw new Error(error);
+    }
+  },
+
+  getUsers: async (): Promise<
+    Array<
+      Pick<Users, "id" | "name" | "last_name" | "email" | "role" | "status">
+    >
+  > => {
+    try {
+      return await prisma.users.findMany({
+        select: {
+          id: true,
+          name: true,
+          last_name: true,
+          email: true,
+          role: true,
+          status: true,
+        },
+      });
+    } catch (error: unknown) {
+      console.error("Failed to get users", error);
+      return [];
+    }
+  },
+  getUser: async (
+    userId: number
+  ): Promise<Pick<
+    Users,
+    "id" | "name" | "last_name" | "email" | "role" | "status"
+  > | null> => {
+    try {
+      return await prisma.users.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          id: true,
+          name: true,
+          last_name: true,
+          email: true,
+          role: true,
+          status: true,
+        },
+      });
+    } catch (error: any) {
+      console.error("Failed to get user", error);
+      return null;
     }
   },
 };

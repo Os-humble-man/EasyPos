@@ -7,6 +7,8 @@ import { generateTokens } from "../services/auth.service";
 const userSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
+  role: z.string(),
+  status: z.string(),
   email: z.string().email(),
   password: z.string(),
 });
@@ -72,4 +74,14 @@ export const userController = {
       res.status(403).json({ message: "Expired or invalid token" });
     }
   },
+
+  getUsers: async (req: Request, res: Response) => {
+    try {
+      const users = await userModel.getUsers();
+      res.status(200).json(users);
+    } catch (error: Error | any) {
+      logger.error(error);
+    }
+  },
+  // getUser:async(r)
 };

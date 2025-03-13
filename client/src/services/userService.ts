@@ -19,15 +19,15 @@ const UserService = {
     return response.data;
   },
   getUserById: async (id: number): Promise<User> => {
-    const response = await apiClient.get<User>(`/users/${id}`);
+    const response = await apiClient.get<User>(`/user/${id}`);
     return response.data;
   },
   updateUser: async (user: User): Promise<User> => {
-    const response = await apiClient.put<User, User>(`/users/${user.id}`, user);
+    const response = await apiClient.put<User, User>(`/user/${user.id}`, user);
     return response.data;
   },
   deleteUser: async (id: number): Promise<User> => {
-    const response = await apiClient.delete<User>(`/users/${id}`);
+    const response = await apiClient.delete<User>(`/user/${id}`);
     return response.data;
   },
   login: async (
