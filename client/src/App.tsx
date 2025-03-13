@@ -4,6 +4,7 @@ import LoginPage from "./pages/Login";
 import RegisterPage from "./pages/Register";
 import DashboardPage from "./pages/Dashboard";
 import AdminDashboardPage from "./pages/admin/dashboard";
+import UsersPage from "./pages/Users";
 // import About from "./pages/About";
 // import NotFound from "./pages/NotFound";
 
@@ -16,6 +17,7 @@ const App: React.FC = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/users" element={<UsersPage />} />
 
         {/* <Route path="/about" element={<About />} />
         <Route path="*" element={<NotFound />} /> */}

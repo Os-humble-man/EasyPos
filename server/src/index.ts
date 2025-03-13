@@ -9,10 +9,6 @@ import { logger } from "./_core/Logger";
 import http from "http";
 import { makeApiRouter } from "./routes";
 
-import escpos from "escpos";
-import Bluetooth from "escpos-bluetooth";
-// import { sessionMiddleware } from "./middleware/sessionMiddleware";
-
 (async () => {
   try {
     dotenv.config();
@@ -22,13 +18,6 @@ import Bluetooth from "escpos-bluetooth";
     app.use(morgan("dev"));
     app.use(json());
     // app.use(sessionMiddleware);
-
-    const device = new Bluetooth("00:72:0d:39:72:72");
-    const printer = new escpos.Printer(device);
-
-    device.open(() => {
-      printer.text("Ticket de caisse").text("Total: 10.00€").cut().close();
-    });
 
     makeApiRouter(app);
     app.get("/health", (req, res) => {
