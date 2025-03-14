@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import MainContainer from "@/layout";
+import { useTaxes } from "@/hooks/useTaxs";
 
 const schema = yup.object().shape({
   noPlaque: yup.string().required("Le numéro de plaque est requis"),
@@ -39,22 +40,32 @@ const schema = yup.object().shape({
   motif: yup.string().required("Le motif est requis"),
 });
 
-const taxes = [
-  { id: 1, label: "Taxe 1" },
-  { id: 2, label: "Taxe 2" },
-  { id: 3, label: "Taxe 3" },
-];
+// const taxes = [
+//   { id: 1, label: "Taxe 1" },
+//   { id: 2, label: "Taxe 2" },
+//   { id: 3, label: "Taxe 3" },
+// ];
 
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const {taxes,loading} = useTaxes()
   const {
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
+
+  const selectedDenomination = useWatch({
+    control,
+    name: "denomination",
+  });
+
+  const selectedTax = taxes.find((tax) => tax.name === selectedDenomination);
+
 
   const onSubmit = (data: {
     noPlaque: string;
@@ -76,6 +87,14 @@ export default function DashboardPage() {
   const handleLogout = () => {
     navigate("/");
   };
+
+  useEffect(()=>{
+    if (selectedTax?.type === "fixed" && selectedTax.amount !== undefined) {
+      setValue("montant", selectedTax.amount); 
+    } else {
+      setValue("montant", 0); 
+    }
+  },[selectedTax,setValue])
 
   return (
     <MainContainer>
@@ -182,8 +201,8 @@ export default function DashboardPage() {
                               </SelectTrigger>
                               <SelectContent>
                                 {taxes.map((tax) => (
-                                  <SelectItem key={tax.id} value={tax.label}>
-                                    {tax.label}
+                                  <SelectItem key={tax.id} value={tax.name}>
+                                    {tax.name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -208,7 +227,6 @@ export default function DashboardPage() {
                         <Controller
                           name="montant"
                           control={control}
-                          defaultValue=""
                           render={({ field }) => (
                             <Input
                               {...field}
@@ -226,7 +244,6 @@ export default function DashboardPage() {
                         )}
                       </div>
 
-                      {/* Champ Motif */}
                       <div className="mb-6">
                         <label
                           htmlFor="motif"

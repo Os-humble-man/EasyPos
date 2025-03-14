@@ -46,7 +46,12 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { useForm, Controller, useWatch } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
 import Layout from "@/layout/PageLayout";
+import TaxService from "@/services/taxService";
 
 const initialTaxes = [
   {
@@ -117,11 +122,48 @@ const initialTaxes = [
   },
 ];
 
+interface TaxFormData {
+  name: string;
+  type: "fixed" | "variable";
+  amount: number;
+}
+
+const taxSchema = yup.object().shape({
+  name: yup.string().required("Tax name is required"),
+  type: yup
+    .string()
+    .oneOf(["fixed", "variable"], "Invalid tax type")
+    .required("Tax type is required"),
+  amount: yup
+    .number()
+    .required("Amount is required")
+    .test("is-number", "Amount must be a number", (value) => {
+      return !isNaN(Number(value));
+    }),
+  // status: yup
+  //   .string()
+  //   .oneOf(["Active", "Inactive"], "Invalid status")
+  //   .required("Status is required"),
+});
+
 export default function TaxesPage() {
   const [taxes, setTaxes] = useState(initialTaxes);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddTaxOpen, setIsAddTaxOpen] = useState(false);
   const [isEditTaxOpen, setIsEditTaxOpen] = useState(false);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TaxFormData>({
+    resolver: yupResolver(taxSchema), 
+    defaultValues: {
+      name: "",
+      type: "fixed",
+      amount: 0,
+    },
+  });
   const [currentTax, setCurrentTax] = useState<{
     id: number;
     name: string;
@@ -133,23 +175,7 @@ export default function TaxesPage() {
     status: string;
     lastUpdated: string;
   } | null>(null);
-  const [newTax, setNewTax] = useState<{
-    name: string;
-    code: string;
-    description: string;
-    rate: number | null;
-    hasFixedAmount: boolean;
-    fixedAmount: number | null;
-    status: string;
-  }>({
-    name: "",
-    code: "",
-    description: "",
-    rate: null,
-    hasFixedAmount: false,
-    fixedAmount: null,
-    status: "Active",
-  });
+
 
   // Filter taxes based on search term
   const filteredTaxes = taxes.filter(
@@ -159,22 +185,19 @@ export default function TaxesPage() {
       tax.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddTax = () => {
-    // const id = Math.max(...taxes.map((tax) => tax.id)) + 1;
-    // const lastUpdated = new Date().toISOString().split("T")[0];
 
-    // setTaxes([...taxes, { ...newTax, id, lastUpdated }]);
+  const onSubmit = async (data: TaxFormData) => {
+    try {
+      const response = await TaxService.createTax(data);
+      if(response.status === 201){
+        setIsAddTaxOpen(false);
+        reset()
 
-    setNewTax({
-      name: "",
-      code: "",
-      description: "",
-      rate: null,
-      hasFixedAmount: false,
-      fixedAmount: null,
-      status: "Active",
-    });
-    setIsAddTaxOpen(false);
+      }
+    } catch (error) {
+      console.error(error)
+    }
+
   };
 
   const handleEditTax = () => {
@@ -211,6 +234,11 @@ export default function TaxesPage() {
     setIsEditTaxOpen(true);
   };
 
+  const type = useWatch({
+    control,
+    name: "type",
+  });
+
   return (
     <Layout>
       <main className="flex-1 p-4 lg:p-6">
@@ -224,134 +252,113 @@ export default function TaxesPage() {
               </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>Add New Tax</DialogTitle>
-                <DialogDescription>
-                  Create a new tax with rate or fixed amount.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="name">Tax Name</Label>
-                    <Input
-                      id="name"
-                      value={newTax.name}
-                      onChange={(e) =>
-                        setNewTax({ ...newTax, name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="code">Type de taxe</Label>
-                    <Select>
-                      <SelectTrigger id="taxe" className="w-full">
-                        <SelectValue placeholder="Selectionner taxe" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fixed">Fixe</SelectItem>
-                        <SelectItem value="variable">Variable</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newTax.description}
-                    onChange={(e) =>
-                      setNewTax({ ...newTax, description: e.target.value })
-                    }
+      <DialogHeader>
+        <DialogTitle>Add New Tax</DialogTitle>
+        <DialogDescription>
+          Create a new tax with rate or fixed amount.
+        </DialogDescription>
+      </DialogHeader>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Tax Name</Label>
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="name"
+                    placeholder="Enter tax name"
                   />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Tax Type</Label>
-                  <RadioGroup
-                    defaultValue={
-                      newTax.hasFixedAmount ? "fixed" : "percentage"
-                    }
-                    onValueChange={(value) => {
-                      setNewTax({
-                        ...newTax,
-                        hasFixedAmount: value === "fixed",
-                        rate: value === "fixed" ? null : newTax.rate || 0,
-                        fixedAmount:
-                          value === "fixed" ? newTax.fixedAmount || 0 : null,
-                      });
-                    }}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="percentage" id="percentage" />
-                      <Label htmlFor="percentage">Percentage Rate</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="fixed" id="fixed" />
-                      <Label htmlFor="fixed">Fixed Amount</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-                {newTax.hasFixedAmount ? (
-                  <div className="grid gap-2">
-                    <Label htmlFor="fixed-amount">Fixed Amount</Label>
-                    <Input
-                      id="fixed-amount"
-                      type="number"
-                      value={newTax.fixedAmount || ""}
-                      onChange={(e) =>
-                        setNewTax({
-                          ...newTax,
-                          fixedAmount: isNaN(Number.parseFloat(e.target.value))
-                            ? null
-                            : Number.parseFloat(e.target.value),
-                        })
-                      }
-                    />
-                  </div>
-                ) : (
-                  <div className="grid gap-2">
-                    <Label htmlFor="rate">Rate (%)</Label>
-                    <Input
-                      id="rate"
-                      type="number"
-                      value={newTax.rate || ""}
-                      onChange={(e) =>
-                        setNewTax({
-                          ...newTax,
-                          rate: Number.parseFloat(e.target.value) || 0,
-                        })
-                      }
-                    />
-                  </div>
                 )}
-                <div className="grid gap-2">
-                  <Label htmlFor="status">Status</Label>
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="type">Type de taxe</Label>
+              <Controller
+                name="type"
+                control={control}
+                defaultValue="fixed"
+                render={({ field }) => (
                   <Select
-                    value={newTax.status}
-                    onValueChange={(value) =>
-                      setNewTax({ ...newTax, status: value })
-                    }
+                    onValueChange={field.onChange}
+                    value={field.value}
                   >
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder="Select status" />
+                    <SelectTrigger id="type" className="w-full">
+                      <SelectValue placeholder="Selectionner taxe" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="fixed">Fixe</SelectItem>
+                      <SelectItem value="variable">Variable</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                )}
+              />
+              {errors.type && (
+                <p className="text-red-500 text-sm">{errors.type.message}</p>
+              )}
+            </div>
+            {type === "fixed" && ( // Afficher le champ "amount" uniquement si le type est "fixed"
+              <div className="grid gap-2">
+                <Label htmlFor="amount">Montant</Label>
+                <Controller
+                  name="amount"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      id="amount"
+                      placeholder="Enter amount"
+                    />
+                  )}
+                />
+                {errors.amount && (
+                  <p className="text-red-500 text-sm">{errors.amount.message}</p>
+                )}
               </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAddTaxOpen(false)}
+            )}
+          </div>
+          {/* <div className="grid gap-2">
+            <Label htmlFor="status">Status</Label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
                 >
-                  Cancel
-                </Button>
-                <Button onClick={handleAddTax}>Create Tax</Button>
-              </DialogFooter>
-            </DialogContent>
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.status && (
+              <p className="text-red-500 text-sm">{errors.status.message}</p>
+            )}
+          </div> */}
+        </div>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setIsAddTaxOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit">Create Tax</Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
           </Dialog>
         </div>
 

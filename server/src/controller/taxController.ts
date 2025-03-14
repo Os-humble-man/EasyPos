@@ -6,7 +6,7 @@ import { z } from "zod";
 import { TaxesType } from "@prisma/client";
 
 const taxSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   name: z.string(),
   type: z.nativeEnum(TaxesType),
   amount: z.number(),

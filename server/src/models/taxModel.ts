@@ -12,7 +12,7 @@ export const taxModel = {
         data: {
           name: data.name,
           type: data.type,
-          amount: data.amount,
+          amount:data.type === "variable" ? 0 : data.amount,
         },
       });
       return tax;
