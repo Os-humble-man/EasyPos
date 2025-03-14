@@ -9,7 +9,4 @@ userRouter.post("/auth/login", userController.login);
 userRouter.post("/auth/refresh-token", userController.refresh);
 userRouter.get("/users", userController.getUsers);
 
-// userRouter.post("/connect", printerController.connect);
-// userRouter.post("/print", printerController.print);
-
 export default userRouter;
