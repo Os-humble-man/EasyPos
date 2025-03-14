@@ -231,7 +231,7 @@ export default function TaxesPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="name">Tax Name</Label>
                     <Input
@@ -243,14 +243,16 @@ export default function TaxesPage() {
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="code">Tax Code</Label>
-                    <Input
-                      id="code"
-                      value={newTax.code}
-                      onChange={(e) =>
-                        setNewTax({ ...newTax, code: e.target.value })
-                      }
-                    />
+                    <Label htmlFor="code">Type de taxe</Label>
+                    <Select>
+                      <SelectTrigger id="taxe" className="w-full">
+                        <SelectValue placeholder="Selectionner taxe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fixed">Fixe</SelectItem>
+                        <SelectItem value="variable">Variable</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="grid gap-2">
