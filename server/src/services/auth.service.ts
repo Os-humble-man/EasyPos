@@ -10,7 +10,6 @@ interface UserPayload {
 }
 
 export const generateTokens = async (user: UserPayload) => {
-  // Générer les tokens
   const accessToken = jwt.sign({ user }, process.env.JWT_SECRET!, {
     expiresIn: ACCESS_TOKEN_EXPIRY,
   });
@@ -20,15 +19,15 @@ export const generateTokens = async (user: UserPayload) => {
   });
 
   await prisma.refreshToken.upsert({
-    where: { userId: user.userId }, // Utiliser userId comme clé pour le where
+    where: { userId: user.userId },
     update: {
       token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 jours
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
     create: {
-      userId: user.userId, // Utiliser userId comme clé pour le create
+      userId: user.userId,
       token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 jours
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   });
 

@@ -50,16 +50,13 @@ export const userModel = {
         throw new Error("Invalid password");
       }
 
-    console.log("user",user);
-    
-
       return {
         userId: user.id,
         posId: user.posDevices.length > 0 ? user.posDevices[0].id : null,
-        role:user.role // Retourne l'ID du premier POS associé (ou null si aucun)
+        role: user.role,
       };
     } catch (error: Error | any) {
-      throw new Error(error.message); // Renvoyer l'erreur avec le message
+      throw new Error(error.message);
     }
   },
   refreshToken: async (refreshToken: string) => {

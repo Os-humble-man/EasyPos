@@ -39,22 +39,20 @@ export const userController = {
         email: z.string().email(),
         password: z.string(),
       });
-  
+
       const validatedData = loginSchema.parse(req.body);
       const user = await userModel.login(
         validatedData.email,
         validatedData.password
       );
 
-       
-  
       if (!user) {
         res.status(401).json({ message: "Invalid email or password" });
         return;
       }
-  
+
       const token = await generateTokens(user);
-  
+
       res.cookie("accessToken", token.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -64,7 +62,7 @@ export const userController = {
         domain:
           process.env.NODE_ENV === "production" ? "autolbm.com" : undefined,
       });
-  
+
       res.status(200).json({
         message: "Login successful",
       });
@@ -75,6 +73,7 @@ export const userController = {
   },
 
   refresh: async (req: Request, res: Response): Promise<void> => {
+    logger.info("Refresh token");
     const { refreshToken } = req.body;
     try {
       if (!refreshToken) {
@@ -92,15 +91,33 @@ export const userController = {
   getUsers: async (req: Request, res: Response) => {
     try {
       const users = await userModel.getUsers();
-      console.log(req.posId);
-      console.log(req.userId)
-      console.log(req.role)
-      
-      
       res.status(200).json(users);
     } catch (error: Error | any) {
       logger.error(error);
     }
   },
-  // getUser:async(r)
+
+  isAuthenticated: (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.userId || !req.posId || !req.role) {
+      res.status(401).json({
+        message: "Non authentifié",
+        isAuthenticated: false,
+      });
+      return;
+    }
+
+    // console.log(req.userId, req.posId, req.role);
+
+    console.log(req.body);
+
+    res.status(200).json({
+      data: {
+        userId: req.userId,
+        posId: req.posId,
+        role: req.role,
+        isAuthenticated: true,
+      },
+      message: "Authentifié",
+    });
+  },
 };

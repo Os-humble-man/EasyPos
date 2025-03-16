@@ -196,7 +196,7 @@ export default function DashboardPage() {
                               </SelectTrigger>
                               <SelectContent>
                                 {taxes.map((tax) => (
-                                  <SelectItem key={tax.id} value={tax.name}>
+                                  <SelectItem key={tax.id} value={tax.id}>
                                     {tax.name}
                                   </SelectItem>
                                 ))}
