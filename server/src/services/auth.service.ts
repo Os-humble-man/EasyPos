@@ -4,24 +4,31 @@ import prisma from "../_core/database";
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
 
-export const generateTokens = async (userId: number) => {
-  const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET!, {
+interface UserPayload {
+  userId: number;
+  posId: number | null;
+}
+
+export const generateTokens = async (user: UserPayload) => {
+  // Générer les tokens
+  const accessToken = jwt.sign({ user }, process.env.JWT_SECRET!, {
     expiresIn: ACCESS_TOKEN_EXPIRY,
   });
-  const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET!, {
+
+  const refreshToken = jwt.sign({ user }, process.env.JWT_REFRESH_SECRET!, {
     expiresIn: REFRESH_TOKEN_EXPIRY,
   });
 
   await prisma.refreshToken.upsert({
-    where: { userId },
+    where: { userId: user.userId }, // Utiliser userId comme clé pour le where
     update: {
       token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 jours
     },
     create: {
-      userId,
+      userId: user.userId, // Utiliser userId comme clé pour le create
       token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 jours
     },
   });
 

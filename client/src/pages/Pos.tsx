@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { MoreHorizontal, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +48,8 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Layout from "@/layout/PageLayout";
+import { PosService } from "@/services/PosService";
+import { useUsers } from "@/hooks/useUsers";
 
 // Mock data for POS machines
 const initialPOS = [
@@ -96,20 +101,28 @@ const initialPOS = [
 ];
 
 // Mock data for users/agents
-const agents = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Smith" },
-  { id: 3, name: "Robert Johnson" },
-  { id: 4, name: "Sarah Williams" },
-  { id: 5, name: "Michael Brown" },
-  { id: 6, name: "Emily Davis" },
-];
+
+const schema = yup.object().shape({
+  device_name: yup.string().required("POS Name is required"),
+  agent_id: yup.number().required("Assigned Agent is required"),
+  location: yup.string().required("Location is required"),
+  status: yup.string().required("Status is required"),
+});
 
 export default function POSPage() {
   const [posDevices, setPosDevices] = useState(initialPOS);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddPOSOpen, setIsAddPOSOpen] = useState(false);
   const [isEditPOSOpen, setIsEditPOSOpen] = useState(false);
+  const { users } = useUsers();
+  const agents = users.filter((user) => user.role === "agent");
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
   const [currentPOS, setCurrentPOS] = useState<{
     id: number;
     name: string;
@@ -211,6 +224,21 @@ export default function POSPage() {
     setIsEditPOSOpen(true);
   };
 
+  const onSubmit = async (data: any) => {
+    // handleAddPOS(data:);
+
+    try {
+      const response = await PosService.createPos(data);
+      console.log(response);
+
+      if (response) {
+        setIsAddPOSOpen(false);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Layout>
       <main className="flex-1 p-4 lg:p-6">
@@ -232,76 +260,109 @@ export default function POSPage() {
                   Register a new POS machine and assign it to an agent.
                 </DialogDescription>
               </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="pos-name">POS Name</Label>
-                  <Input
-                    id="pos-name"
-                    value={newPOS.name}
-                    onChange={(e) =>
-                      setNewPOS({ ...newPOS, name: e.target.value })
-                    }
-                    placeholder="e.g. Main Office POS"
-                  />
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="pos-name">POS Name</Label>
+                    <Controller
+                      name="device_name"
+                      control={control}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <Input
+                          id="pos-name"
+                          {...field}
+                          placeholder="e.g. Main Office POS"
+                        />
+                      )}
+                    />
+                    {errors.device_name && (
+                      <p className="text-red-500">
+                        {errors.device_name.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="agent">Assigned Agent</Label>
+                    <Controller
+                      name="agent_id"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger id="agent_id">
+                            <SelectValue placeholder="Select agent" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {agents.map((agent) => (
+                              <SelectItem key={agent.id} value={agent.id}>
+                                {agent.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.agent_id && (
+                      <p className="text-red-500">{errors.agent_id.message}</p>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Controller
+                      name="location"
+                      control={control}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <Input
+                          id="location"
+                          {...field}
+                          placeholder="e.g. Headquarters - 1st Floor"
+                        />
+                      )}
+                    />
+                    {errors.location && (
+                      <p className="text-red-500">{errors.location.message}</p>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Controller
+                      name="status"
+                      control={control}
+                      defaultValue=""
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger id="status">
+                            <SelectValue placeholder="Select status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.status && (
+                      <p className="text-red-500">{errors.status.message}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="agent">Assigned Agent</Label>
-                  <Select
-                    value={newPOS.agent}
-                    onValueChange={(value) =>
-                      setNewPOS({ ...newPOS, agent: value })
-                    }
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddPOSOpen(false)}
                   >
-                    <SelectTrigger id="agent">
-                      <SelectValue placeholder="Select agent" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {agents.map((agent) => (
-                        <SelectItem key={agent.id} value={agent.name}>
-                          {agent.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={newPOS.location}
-                    onChange={(e) =>
-                      setNewPOS({ ...newPOS, location: e.target.value })
-                    }
-                    placeholder="e.g. Headquarters - 1st Floor"
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={newPOS.status}
-                    onValueChange={(value) =>
-                      setNewPOS({ ...newPOS, status: value })
-                    }
-                  >
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsAddPOSOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleAddPOS}>Register POS</Button>
-              </DialogFooter>
+                    Cancel
+                  </Button>
+                  <Button type="submit">Register POS</Button>
+                </DialogFooter>
+              </form>
             </DialogContent>
           </Dialog>
         </div>

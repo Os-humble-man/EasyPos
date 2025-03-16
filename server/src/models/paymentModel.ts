@@ -1,22 +1,30 @@
+import { Payments } from "@prisma/client";
 import prisma from "../_core/database";
+import { logger } from "../_core/Logger";
 
-const paymentModel = {
+export const paymentModel = {
   createPayment: async (data: {
-    userId: number;
+    noPlaque: string;
+    tax_id: number;
+    agent_id: number;
+    pos_id: number;
     amount: number;
-    paymentMethod: string;
+    reason: string;
   }) => {
     try {
       const payment = await prisma.payments.create({
         data: {
-          user_id: data.userId,
+          noPlaque: data.noPlaque,
+          tax_id: data.tax_id,
+          agent_id: data.agent_id,
+          pos_id: data.pos_id,
           amount: data.amount,
-        //   payment_method: data.paymentMethod,
+          reason: data.reason,
         },
       });
       return payment;
     } catch (error: Error | any) {
-      throw new Error(error);
+      logger.error(error);
     }
   },
 };

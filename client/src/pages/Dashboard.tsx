@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import MainContainer from "@/layout";
 import { useTaxes } from "@/hooks/useTaxs";
+import PaymentService from "@/services/PaymentService";
 
 const schema = yup.object().shape({
   noPlaque: yup.string().required("Le numéro de plaque est requis"),
@@ -40,16 +41,10 @@ const schema = yup.object().shape({
   motif: yup.string().required("Le motif est requis"),
 });
 
-// const taxes = [
-//   { id: 1, label: "Taxe 1" },
-//   { id: 2, label: "Taxe 2" },
-//   { id: 3, label: "Taxe 3" },
-// ];
-
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const {taxes,loading} = useTaxes()
+  const { taxes, loading } = useTaxes();
   const {
     control,
     handleSubmit,
@@ -66,8 +61,7 @@ export default function DashboardPage() {
 
   const selectedTax = taxes.find((tax) => tax.name === selectedDenomination);
 
-
-  const onSubmit = (data: {
+  const onSubmit = async (data: {
     noPlaque: string;
     denomination: string;
     montant: number;
@@ -76,7 +70,8 @@ export default function DashboardPage() {
     setIsSubmitting(true);
 
     // Simulate form submission
-    console.log(data, isSubmitting);
+    const response = await PaymentService.createPayment(data);
+    console.log(response);
 
     setTimeout(() => {
       setIsSubmitting(false);
@@ -88,13 +83,13 @@ export default function DashboardPage() {
     navigate("/");
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     if (selectedTax?.type === "fixed" && selectedTax.amount !== undefined) {
-      setValue("montant", selectedTax.amount); 
+      setValue("montant", selectedTax.amount);
     } else {
-      setValue("montant", 0); 
+      setValue("montant", 0);
     }
-  },[selectedTax,setValue])
+  }, [selectedTax, setValue]);
 
   return (
     <MainContainer>

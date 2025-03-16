@@ -122,3 +122,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+@media print {
+  .print-background {
+    -webkit-print-color-adjust: exact; /* Pour Chrome et Safari */
+    color-adjust: exact; /* Standard */
+    opacity: 0.2; /* Ajustez l'opacité si nécessaire */
+  }
+}
+
+/* Styles pour l'arrière-plan */
+.print-background {
+  background-image: url('/path/to/logo.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 50%; /* Ajustez la taille du logo */
+  opacity: 0.2;
+}
+
+/* Styles spécifiques à l'impression */
+@media print {
+  .print-background {
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+    background-image: url('/path/to/logo.png') !important;
+    opacity: 0.2 !important;
+  }
+}

@@ -36,17 +36,26 @@ export const userModel = {
         where: {
           email: email,
         },
+        include: {
+          posDevices: true,
+        },
       });
+
       if (!user) {
         throw new Error("User not found");
       }
+
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         throw new Error("Invalid password");
       }
-      return user.id;
+
+      return {
+        userId: user.id,
+        posId: user.posDevices.length > 0 ? user.posDevices[0].id : null, // Retourne l'ID du premier POS associé (ou null si aucun)
+      };
     } catch (error: Error | any) {
-      throw new Error(error);
+      throw new Error(error.message); // Renvoyer l'erreur avec le message
     }
   },
   refreshToken: async (refreshToken: string) => {

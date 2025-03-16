@@ -1,0 +1,7 @@
+@media print {
+    .print-background {
+      -webkit-print-color-adjust: exact; /* Pour Chrome et Safari */
+      color-adjust: exact; /* Standard */
+      opacity: 0.2; /* Ajustez l'opacité si nécessaire */
+    }
+  }

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useNavigate, useParams } from "react-router-dom";
+import logo from "@/assets/logopos.png";
 
 export default function InvoicePage() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ export default function InvoicePage() {
       <div className="mb-4 flex items-center justify-between print:hidden">
         <Button
           variant="outline"
-          onClick={() => navigate.back()}
+          onClick={() => navigate("/dashboard")}
           className="gap-1 text-xs"
         >
           <ArrowLeft className="h-4 w-4" />
@@ -84,38 +85,35 @@ export default function InvoicePage() {
         </Button>
       </div>
 
-      <Card className="mx-auto max-w-xs">
+      <Card className="mx-auto max-w-xs relative overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center opacity-20 print-background">
+          <img src={logo} alt="" className="w-32 h-32" />{" "}
+        </div>
+
         <CardHeader>
-          <div className="flex flex-col items-center justify-between space-y-2 md:flex-row md:space-y-0">
-            <div>
-              <CardTitle className="text-xl">Invoice</CardTitle>
-              <CardDescription className="text-xs">
-                Invoice #{invoice.number}
-              </CardDescription>
+          <div className="flex flex-col items-center justify-center space-y-2 md:flex-row md:space-y-0 ">
+            <div className="z-10">
+              <img src={logo} alt="" className="w-16 h-16" />{" "}
             </div>
-            <div className="text-right text-xs">
-              <h2 className="font-bold">Tax Payment System</h2>
-              <p>123 Government St, Capital City</p>
+            <div className="text-center text-xs z-10">
+              <h2 className="font-bold">République démocratique du Congo</h2>
+              <p>Province du Haut Katanga</p>
+              <p>Secteur des BALAMBA</p>
             </div>
           </div>
         </CardHeader>
+
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
-            <div>
-              <h3 className="text-xs font-medium">Bill To:</h3>
-              <p className="font-medium">{invoice.user.name}</p>
-              <p className="text-xs">{invoice.user.email}</p>
-              <p className="text-xs">{invoice.user.address}</p>
-            </div>
             <div className="text-right">
               <div className="space-y-1">
                 <div className="flex justify-between">
-                  <p className="text-xs font-medium">Invoice Date:</p>
-                  <p className="text-xs">{invoice.date}</p>
+                  <p className="text-xs font-medium">Quittance:</p>
+                  <p className="text-xs">Nº 001</p>
                 </div>
                 <div className="flex justify-between">
-                  <p className="text-xs font-medium">Payment Date:</p>
-                  <p className="text-xs">{invoice.dueDate}</p>
+                  <p className="text-xs">Plaque:</p>
+                  <p className="text-xs">Nº 00AR-00</p>
                 </div>
                 <div className="flex justify-between">
                   <p className="text-xs font-medium">Status:</p>
@@ -128,46 +126,44 @@ export default function InvoicePage() {
           <Separator />
 
           <div>
-            <h3 className="mb-2 text-xs font-medium">Invoice Items</h3>
-            <div className="rounded-md border">
+            <div className="">
               <div className="grid grid-cols-2 p-2 font-medium text-xs">
-                <div>Description</div>
-                <div className="text-right">Amount</div>
+                <div>Dénomination</div>
+                <div className="text-right">Oscar Kanangila</div>
+              </div>
+              <div className="grid grid-cols-2 p-2 font-medium text-xs">
+                <div>Montant</div>
+                <div className="text-right">50.000FC</div>
+              </div>
+              <div className="grid grid-cols-2 p-2 font-medium text-xs">
+                <div>Motif</div>
+                <div className="text-right">Paiement de la taxe</div>
               </div>
               <Separator />
-              {invoice.items.map((item, index) => (
-                <div key={index}>
-                  <div className="grid grid-cols-2 p-2 text-xs">
-                    <div>{item.description}</div>
-                    <div className="text-right">${item.amount.toFixed(2)}</div>
-                  </div>
-                  {index < invoice.items.length - 1 && <Separator />}
-                </div>
-              ))}
             </div>
           </div>
 
           <div className="flex flex-col items-end space-y-1">
             <div className="flex w-full justify-between text-xs">
-              <p className="font-medium">Subtotal:</p>
-              <p>${invoice.subtotal.toFixed(2)}</p>
+              <p className="font-medium">Nom du percepteur/trice:</p>
+              <p>Kasong Mulaj</p>
             </div>
             <div className="flex w-full justify-between text-xs">
-              <p className="font-medium">Tax:</p>
-              <p>${invoice.tax.toFixed(2)}</p>
+              <p className="font-medium">Fait à Tshinsenda le:</p>
+              <p>15/03/2025</p>
             </div>
             <Separator className="w-full" />
             <div className="flex w-full justify-between text-xs font-bold">
-              <p>Total:</p>
-              <p>${invoice.total.toFixed(2)}</p>
+              <p>Signature:</p>
             </div>
           </div>
         </CardContent>
+
         <CardFooter className="text-center text-xs text-muted-foreground">
-          <p>
-            Thank you for your payment. This is an official receipt for your tax
-            payment.
-          </p>
+          {/* <p>
+      Thank you for your payment. This is an official receipt for your tax
+      payment.
+    </p> */}
         </CardFooter>
       </Card>
     </div>

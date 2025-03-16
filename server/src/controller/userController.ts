@@ -45,15 +45,19 @@ export const userController = {
         validatedData.email,
         validatedData.password
       );
+
       if (!user) {
         res.status(401).json({ message: "Invalid email or password" });
         return;
       }
+
       const token = await generateTokens(user);
 
-      res
-        .status(200)
-        .json({ message: "Login successful", accessToken: token.accessToken });
+      res.status(200).json({
+        message: "Login successful",
+        accessToken: token.accessToken,
+        posId: user.posId,
+      });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
       logger.error(error);
