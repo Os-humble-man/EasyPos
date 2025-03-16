@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -10,9 +9,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +20,7 @@ import UserService from "@/services/userService";
 export default function LoginPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
     control,
@@ -36,21 +36,25 @@ export default function LoginPage() {
   const onSubmit = async (data: any) => {
     try {
       setIsLoading(true);
+      setErrorMessage(null); // Réinitialiser le message d'erreur
 
-      setIsLoading(false);
       const response = await UserService.login(data.email, data.password);
-      if (response.status === 200) {
-        navigate("/dashboard");
-      }
-      // Rediriger en fonction du rôle (admin ou utilisateur régulier)
-      // if (data.email === "admin@example.com") {
-      //   navigate("/admin/dashboard");
-      // } else {
-      //   navigate("/dashboard");
-      // }
       console.log(response);
-    } catch (error) {
-      console.log(error);
+      
+
+      if (response.status === 200) {
+        // Rediriger l'utilisateur vers le tableau de bord
+        navigate("/dashboard");
+      } else {
+        setErrorMessage("Invalid email or password");
+      }
+    } catch (error: any) {
+      console.error(error);
+      setErrorMessage(
+        error.response?.data?.message || "An error occurred during login"
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -120,7 +124,7 @@ export default function LoginPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button className="w-full my-4 " type="submit" disabled={isLoading}>
+            <Button className="w-full my-4" type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -133,6 +137,9 @@ export default function LoginPage() {
           </CardFooter>
         </form>
       </Card>
+      {errorMessage && (
+        <p className="text-red-500 text-sm text-center mt-4">{errorMessage}</p>
+      )}
       <p className="mt-4 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link

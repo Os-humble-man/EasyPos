@@ -39,24 +39,34 @@ export const userController = {
         email: z.string().email(),
         password: z.string(),
       });
-
+  
       const validatedData = loginSchema.parse(req.body);
       const user = await userModel.login(
         validatedData.email,
         validatedData.password
       );
 
+       
+  
       if (!user) {
         res.status(401).json({ message: "Invalid email or password" });
         return;
       }
-
+  
       const token = await generateTokens(user);
-
+  
+      res.cookie("accessToken", token.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 1000 * 60 * 60,
+        path: "/",
+        domain:
+          process.env.NODE_ENV === "production" ? "autolbm.com" : undefined,
+      });
+  
       res.status(200).json({
         message: "Login successful",
-        accessToken: token.accessToken,
-        posId: user.posId,
       });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
@@ -82,6 +92,11 @@ export const userController = {
   getUsers: async (req: Request, res: Response) => {
     try {
       const users = await userModel.getUsers();
+      console.log(req.posId);
+      console.log(req.userId)
+      console.log(req.role)
+      
+      
       res.status(200).json(users);
     } catch (error: Error | any) {
       logger.error(error);

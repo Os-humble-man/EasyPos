@@ -8,15 +8,43 @@ import { config } from "./_core/config";
 import { logger } from "./_core/Logger";
 import http from "http";
 import { makeApiRouter } from "./routes";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+
+
 
 (async () => {
   try {
     dotenv.config();
     const app = express();
-    app.use(cors());
+    app.use(
+      cors({
+        origin:
+          process.env.NODE_ENV === "production"
+            ? "https://autolbm.com" 
+            : "http://localhost:5173", 
+        credentials: true, 
+      })
+    );
     app.use(helmet());
     app.use(morgan("dev"));
-    app.use(json());
+    app.use(express.json());
+    app.use(cookieParser());
+
+    app.use(session({
+      secret: process.env.SESSION_SECRET || "",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: "strict",
+        maxAge: 1000 * 60 * 60 * 24,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        path: "/",
+        domain: process.env.NODE_ENV === "production" ? "autolbm.com" : undefined
+      },
+    }))
     // app.use(sessionMiddleware);
 
     makeApiRouter(app);

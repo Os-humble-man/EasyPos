@@ -1,10 +1,10 @@
 // src/types/express.d.ts
-import { Request } from "express";
+import "express";
 
-declare global {
-  namespace Express {
-    interface Request {
-      auth?: { artifacts: { accessToken: string } };
-    }
+declare module "express" {
+  interface Request {
+    userId?: number;
+    posId?: number | null;
+    role?: string;
   }
 }

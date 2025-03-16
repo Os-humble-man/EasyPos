@@ -3,6 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 interface ApiResponse<T> {
   data: T;
   status: number;
+  headers?: any;
   message?: string;
 }
 
@@ -17,12 +18,23 @@ class ApiClient {
       headers: {
         "Content-Type": "application/json",
       },
+      withCredentials: true, // Activer l'envoi des cookies
     });
 
+    // Intercepteur de requête
     this.AxiosInstance.interceptors.request.use(
+      (config) => config,
+      (error) => {
+        console.error("API Request Error: ", error.message);
+        return Promise.reject(error);
+      }
+    );
+
+    // Intercepteur de réponse
+    this.AxiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
-        console.error("API Error: ", error.response?.data || error.message);
+        console.error("API Response Error: ", error.response?.data || error.message);
         return Promise.reject(error);
       }
     );
@@ -32,11 +44,12 @@ class ApiClient {
     url: string,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.get(
-      url,
-      config
-    );
-    return { data: response.data, status: response.status };
+    const response: AxiosResponse<T> = await this.AxiosInstance.get(url, config);
+    return {
+      data: response.data,
+      status: response.status,
+      headers: response.headers,
+    };
   }
 
   async post<T, U>(
@@ -44,12 +57,12 @@ class ApiClient {
     body: U,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.post(
-      url,
-      body,
-      config
-    );
-    return { data: response.data, status: response.status };
+    const response: AxiosResponse<T> = await this.AxiosInstance.post(url, body, config);
+    return {
+      data: response.data,
+      status: response.status,
+      headers: response.headers,
+    };
   }
 
   async put<T, U>(
@@ -57,23 +70,24 @@ class ApiClient {
     body: U,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.put(
-      url,
-      body,
-      config
-    );
-    return { data: response.data, status: response.status };
+    const response: AxiosResponse<T> = await this.AxiosInstance.put(url, body, config);
+    return {
+      data: response.data,
+      status: response.status,
+      headers: response.headers,
+    };
   }
 
   async delete<T>(
     url: string,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.delete(
-      url,
-      config
-    );
-    return { data: response.data, status: response.status };
+    const response: AxiosResponse<T> = await this.AxiosInstance.delete(url, config);
+    return {
+      data: response.data,
+      status: response.status,
+      headers: response.headers,
+    };
   }
 }
 
