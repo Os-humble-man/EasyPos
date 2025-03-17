@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 const bluetoothService = require("../services/bluetoothService");
 
 const printerController = {
-  // Connecter l'imprimante
   connect: async (req: Request, res: Response) => {
     try {
       await bluetoothService.connectToPrinter();
@@ -13,7 +12,6 @@ const printerController = {
     }
   },
 
-  // Envoyer des données à imprimer
   print: async (req: Request, res: Response): Promise<void> => {
     const { data } = req.body;
 

@@ -55,8 +55,8 @@ export const userModel = {
         posId: user.posDevices.length > 0 ? user.posDevices[0].id : null,
         role: user.role,
       };
-    } catch (error: Error | any) {
-      throw new Error(error.message);
+    } catch (error: any) {
+      throw new Error(error.message || "An error occurred during login");
     }
   },
   refreshToken: async (refreshToken: string) => {

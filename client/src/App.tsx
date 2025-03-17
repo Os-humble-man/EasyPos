@@ -7,7 +7,7 @@ import AdminDashboardPage from "./pages/admin/dashboard";
 import UsersPage from "./pages/Users";
 import TaxesPage from "./pages/Taxes";
 import POSPage from "./pages/Pos";
-import InvoicePage from "./components/Invoice";
+import InvoicePage from "./components/Invoice"; // Assurez-vous que le chemin est correct
 import PrivateRoute from "./components/PrivateRoute";
 import { useAuthStore } from "./store/authStore";
 import { useEffect } from "react";
@@ -32,7 +32,8 @@ const App: React.FC = () => {
           <Route path="/admin/users" element={<UsersPage />} />
           <Route path="/admin/taxes" element={<TaxesPage />} />
           <Route path="/admin/pos" element={<POSPage />} />
-          <Route path="/invoice" element={<InvoicePage />} />
+          {/* Ajoutez le paramètre dynamique :id à la route /invoice */}
+          <Route path="/invoice/:id" element={<InvoicePage />} />
         </Route>
       </Routes>
     </Router>

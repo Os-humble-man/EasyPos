@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useForm, Controller, useWatch } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 import * as yup from "yup";
 
@@ -28,7 +29,6 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import MainContainer from "@/layout";
-import { useTaxes } from "@/hooks/useTaxs";
 import PaymentService from "@/services/PaymentService";
 
 const schema = yup.object().shape({
@@ -44,22 +44,14 @@ const schema = yup.object().shape({
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { taxes, loading } = useTaxes();
   const {
     control,
     handleSubmit,
-    setValue,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
-
-  const selectedDenomination = useWatch({
-    control,
-    name: "denomination",
-  });
-
-  const selectedTax = taxes.find((tax) => tax.name === selectedDenomination);
 
   const onSubmit = async (data: {
     noPlaque: string;
@@ -68,28 +60,32 @@ export default function DashboardPage() {
     motif: string;
   }) => {
     setIsSubmitting(true);
+    try {
+      const response = await PaymentService.createPayment(data);
+      console.log(response);
 
-    // Simulate form submission
-    const response = await PaymentService.createPayment(data);
-    console.log(response);
-
-    setTimeout(() => {
+      if (response.status === 201) {
+        navigate(`/invoice/${response.data.id}`, {
+          state: {
+            noPlaque: data.noPlaque,
+            denomination: data.denomination,
+            montant: data.montant,
+            motif: data.motif,
+          },
+        });
+        toast("Paiement effectué avec succès.");
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error(error);
+      toast("Une erreur s'est produite. Veuillez réessayer.");
       setIsSubmitting(false);
-      // Show success message or redirect
-    }, 1500);
+    }
   };
 
   const handleLogout = () => {
     navigate("/");
   };
-
-  useEffect(() => {
-    if (selectedTax?.type === "fixed" && selectedTax.amount !== undefined) {
-      setValue("montant", selectedTax.amount);
-    } else {
-      setValue("montant", 0);
-    }
-  }, [selectedTax, setValue]);
 
   return (
     <MainContainer>
@@ -195,11 +191,7 @@ export default function DashboardPage() {
                                 <SelectValue placeholder="Sélectionnez une taxe" />
                               </SelectTrigger>
                               <SelectContent>
-                                {taxes.map((tax) => (
-                                  <SelectItem key={tax.id} value={tax.id}>
-                                    {tax.name}
-                                  </SelectItem>
-                                ))}
+                                <SelectItem value="1">Energie</SelectItem>
                               </SelectContent>
                             </Select>
                           )}
@@ -268,7 +260,7 @@ export default function DashboardPage() {
 
                       {/* Bouton de soumission */}
                       <Button type="submit" className="w-full">
-                        Soumettre
+                        {isSubmitting ? "Processing..." : "Paiment"}
                       </Button>
                     </form>
                   </div>
@@ -284,7 +276,6 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="rounded-md border">
-                      {/* En-tête du tableau (visible uniquement sur les grands écrans) */}
                       <div className="hidden md:grid md:grid-cols-5 p-4 font-medium">
                         <div>Date</div>
                         <div>Reference</div>
@@ -293,8 +284,6 @@ export default function DashboardPage() {
                         <div>Status</div>
                       </div>
                       <Separator className="hidden md:block" />
-
-                      {/* Ligne 1 */}
                       <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
                         <div className="font-medium md:hidden">Date</div>
                         <div>2025-03-10</div>

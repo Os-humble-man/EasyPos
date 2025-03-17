@@ -15,8 +15,6 @@ const paymentSchema = z.object({
 
 export const PaymentController = {
   createPayment: async (req: Request, res: Response, next: NextFunction) => {
-    console.log(req.userId, req.posId, req.role);
-
     if (!req.body) {
       res.status(HttpStatus.BAD_REQUEST).send({ message: "Bad request" });
       return;
@@ -31,9 +29,6 @@ export const PaymentController = {
         reason: req.body.motif,
       };
       const validatedData = paymentSchema.parse(data);
-
-      console.log(req.body);
-
       const newPayment = await paymentModel.createPayment(validatedData);
       res.status(201).json(newPayment);
     } catch (error) {

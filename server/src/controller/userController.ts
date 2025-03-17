@@ -106,14 +106,10 @@ export const userController = {
       return;
     }
 
-    // console.log(req.userId, req.posId, req.role);
-
-    console.log(req.body);
-
     res.status(200).json({
       data: {
-        userId: req.userId,
-        posId: req.posId,
+        // userId: req.userId,
+        // posId: req.posId,
         role: req.role,
         isAuthenticated: true,
       },

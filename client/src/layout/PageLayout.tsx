@@ -1,6 +1,7 @@
 import { BarChart3, FileText, LogOut, Search, User, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Toaster } from "@/components/ui/sonner";
 
 import { Link, useLocation } from "react-router-dom";
 
@@ -106,6 +107,7 @@ const Layout = ({ children }: Props) => {
         </header>
 
         <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <Toaster />
       </div>
     </div>
   );

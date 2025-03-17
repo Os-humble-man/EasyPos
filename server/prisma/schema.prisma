@@ -11,34 +11,35 @@ model Logs {
   id         Int      @id @default(autoincrement())
   user_id    Int
   action     String   @db.Text
-  created_at DateTime @default(now()) @db.Timestamp(6)
-  users      Users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  users      Users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "logs_ibfk_1")
 
-  @@index([user_id], name: "user_id")
+  @@index([user_id], map: "user_id")
 }
 
 model Payments {
-  id             Int           @id @default(autoincrement())
-  noPlaque       String        @db.VarChar(255)
+  id             Int                     @id @default(autoincrement())
+  noPlaque       String                  @unique(map: "receipt_number") @db.VarChar(255)
   tax_id         Int
   agent_id       Int
   pos_id         Int
-  amount         Decimal       @db.Decimal(10, 2)
-  reason         String        @db.Text
-  payment_method PaymentMethod @default(cash)
-  payment_date   DateTime      @default(now()) @db.Timestamp(6)
-  users          Users         @relation(fields: [agent_id], references: [id], onDelete: Cascade, onUpdate: Restrict) // Relation obligatoire
-  pos_devices    PosDevices    @relation(fields: [pos_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
-  taxes          Taxes         @relation(fields: [tax_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  amount         Decimal                 @db.Decimal(10, 2)
+  reason         String                  @db.Text
+  payment_method Payments_payment_method @default(cash)
+  payment_date   DateTime                @default(now()) @db.Timestamp(0)
+  reference      String?                 @db.VarChar(255)
+  taxes          Taxes                   @relation(fields: [tax_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_1")
+  users          Users                   @relation(fields: [agent_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_2")
+  pos_devices    PosDevices              @relation(fields: [pos_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_3")
 
-  @@index([agent_id], name: "agent_id")
-  @@index([pos_id], name: "pos_id")
-  @@index([tax_id], name: "tax_id")
+  @@index([agent_id], map: "agent_id")
+  @@index([pos_id], map: "pos_id")
+  @@index([tax_id], map: "tax_id")
 }
 
 model Permissions {
-  id               Int                @id @default(autoincrement())
-  name             String             @unique @db.VarChar(255)
+  id               Int               @id @default(autoincrement())
+  name             String            @unique(map: "name") @db.VarChar(255)
   user_permissions UserPermissions[]
 }
 
@@ -47,46 +48,46 @@ model PosDevices {
   agent_id    Int
   device_name String     @db.VarChar(255)
   location    String?    @db.VarChar(255)
+  created_at  DateTime   @default(now()) @db.Timestamp(0)
   status      PosStatus  @default(active)
-  created_at  DateTime   @default(now()) @db.Timestamp(6)
   payments    Payments[]
-  users       Users      @relation(fields: [agent_id], references: [id]) // Relation avec Users
+  users       Users      @relation(fields: [agent_id], references: [id]) // Relation vers Users
 }
 
 model Taxes {
   id         Int        @id @default(autoincrement())
-  name       String     @unique @db.VarChar(255)
+  name       String     @unique(map: "name") @db.VarChar(255)
   type       TaxesType
   amount     Decimal?   @db.Decimal(10, 2)
-  created_at DateTime   @default(now()) @db.Timestamp(6)
+  created_at DateTime   @default(now()) @db.Timestamp(0)
   payments   Payments[]
 }
 
 model UserPermissions {
   user_id       Int
   permission_id Int
-  users         Users       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
-  permissions   Permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  users         Users       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_permissions_ibfk_1")
+  permissions   Permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_permissions_ibfk_2")
 
   @@id([user_id, permission_id])
-  @@index([permission_id], name: "permission_id")
+  @@index([permission_id], map: "permission_id")
 }
 
 model Users {
-  id               Int                @id @default(autoincrement())
-  name             String             @db.VarChar(255)
-  last_name        String             @db.VarChar(255)
-  email            String             @unique @db.VarChar(255)
-  password         String             @db.VarChar(255)
-  role             UsersRole          @default(agent)
-  status           UsersStatus        @default(active)
-  created_at       DateTime           @default(now()) @db.Timestamp(6)
-  updated_at       DateTime           @default(now()) @db.Timestamp(6)
+  id               Int               @id @default(autoincrement())
+  name             String            @db.VarChar(255)
+  last_name        String            @db.VarChar(255)
+  email            String            @unique(map: "email") @db.VarChar(255)
+  password         String            @db.VarChar(255)
+  role             UsersRole         @default(agent)
+  status           UsersStatus       @default(active)
+  created_at       DateTime          @default(now()) @db.Timestamp(0)
+  updated_at       DateTime          @default(now()) @db.Timestamp(0)
   logs             Logs[]
   payments         Payments[]
+  refreshTokens    RefreshToken?
   user_permissions UserPermissions[]
-  refreshTokens    RefreshToken[]
-  posDevices       PosDevices[]       // Relation avec PosDevices
+  posDevices       PosDevices[]      // Relation inverse vers PosDevices
 }
 
 model RefreshToken {
@@ -117,9 +118,6 @@ enum PosStatus {
   inactive
 }
 
-enum PaymentMethod {
+enum Payments_payment_method {
   cash
-  card
-  mobile_money
-  other
 }

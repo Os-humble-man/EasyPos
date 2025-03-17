@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ArrowLeft, Download, Printer } from "lucide-react";
+import { useLocation } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,13 +19,20 @@ import logo from "@/assets/logopos.png";
 
 export default function InvoicePage() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Correct use of useParams
+  const { id } = useParams();
+  const location = useLocation(); // Pour accéder aux données passées via navigate
   const [invoice, setInvoice] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real app, fetch the invoice data from an API
-    // For this demo, we'll use mock data
+    // Utiliser les données passées via navigate
+    const invoiceData = location.state || {
+      noPlaque: "Nº 00AR-00",
+      denomination: "Oscar Kanangila",
+      montant: 50000,
+      motif: "Paiement de la taxe",
+    };
+
     const mockInvoice = {
       id: id,
       number: `INV-${id}`,
@@ -37,20 +46,23 @@ export default function InvoicePage() {
       items: [
         {
           description: "Income Tax Payment",
-          amount: 1250.0,
+          amount: invoiceData.montant,
         },
       ],
-      subtotal: 1250.0,
+      subtotal: invoiceData.montant,
       tax: 0,
-      total: 1250.0,
+      total: invoiceData.montant,
       status: "Paid",
+      noPlaque: invoiceData.noPlaque,
+      denomination: invoiceData.denomination,
+      motif: invoiceData.motif,
     };
 
     setTimeout(() => {
       setInvoice(mockInvoice);
       setLoading(false);
     }, 500);
-  }, [id]);
+  }, [id, location.state]);
 
   const handlePrint = () => {
     window.print();
@@ -113,7 +125,7 @@ export default function InvoicePage() {
                 </div>
                 <div className="flex justify-between">
                   <p className="text-xs">Plaque:</p>
-                  <p className="text-xs">Nº 00AR-00</p>
+                  <p className="text-xs">{invoice.noPlaque}</p>
                 </div>
                 <div className="flex justify-between">
                   <p className="text-xs font-medium">Status:</p>
@@ -129,15 +141,15 @@ export default function InvoicePage() {
             <div className="">
               <div className="grid grid-cols-2 p-2 font-medium text-xs">
                 <div>Dénomination</div>
-                <div className="text-right">Oscar Kanangila</div>
+                <div className="text-right">{invoice.denomination}</div>
               </div>
               <div className="grid grid-cols-2 p-2 font-medium text-xs">
                 <div>Montant</div>
-                <div className="text-right">50.000FC</div>
+                <div className="text-right">{invoice.total} FC</div>
               </div>
               <div className="grid grid-cols-2 p-2 font-medium text-xs">
                 <div>Motif</div>
-                <div className="text-right">Paiement de la taxe</div>
+                <div className="text-right">{invoice.motif}</div>
               </div>
               <Separator />
             </div>
