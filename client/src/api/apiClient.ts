@@ -7,7 +7,7 @@ interface ApiResponse<T> {
   message?: string;
 }
 
-const API_BASE_URL = "http://192.168.52.86:4040/api";
+const API_BASE_URL = "https://easypos-production.up.railway.app/api";
 
 class ApiClient {
   private AxiosInstance: AxiosInstance;
@@ -18,7 +18,7 @@ class ApiClient {
       headers: {
         "Content-Type": "application/json",
       },
-      withCredentials: true, // Activer l'envoi des cookies
+      withCredentials: true,
     });
 
     this.AxiosInstance.interceptors.request.use(
