@@ -19,8 +19,8 @@ import cookieParser from "cookie-parser";
       cors({
         origin:
           process.env.NODE_ENV === "production"
-            ? "https://autolbm.com"
-            : "http://192.168.52.86:5173",
+            ? "https://easypos-production.up.railway.app/health"
+            : "http://localhost:3000",
         credentials: true,
       })
     );
@@ -43,7 +43,9 @@ import cookieParser from "cookie-parser";
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
           path: "/",
           domain:
-            process.env.NODE_ENV === "production" ? "autolbm.com" : undefined,
+            process.env.NODE_ENV === "production"
+              ? "https://easypos-production.up.railway.app"
+              : undefined,
         },
       })
     );
