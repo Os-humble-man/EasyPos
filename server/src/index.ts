@@ -2,9 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import { json } from "body-parser";
 import dotenv from "dotenv";
-import { config } from "./_core/config";
 import { logger } from "./_core/Logger";
 import http from "http";
 import { makeApiRouter } from "./routes";
@@ -14,7 +12,9 @@ import cookieParser from "cookie-parser";
 (async () => {
   try {
     dotenv.config();
+
     const app = express();
+
     app.use(
       cors({
         origin:
@@ -24,6 +24,7 @@ import cookieParser from "cookie-parser";
         credentials: true,
       })
     );
+
     app.use(helmet());
     app.use(morgan("dev"));
     app.use(express.json());
@@ -46,20 +47,21 @@ import cookieParser from "cookie-parser";
         },
       })
     );
-    // app.use(sessionMiddleware);
 
     makeApiRouter(app);
+
     app.get("/health", (req, res) => {
       res.status(200).send("Application is running");
     });
 
     const server = http.createServer(app);
 
-    server.listen(config.server.port, config.server.host, () => {
+    const port = process.env.PORT || 4040;
+    const host = process.env.HOST || "localhost";
+
+    server.listen(port, () => {
       logger.info(`Server Started At: ${new Date()}`);
-      logger.info(
-        `Server listening at: http://${config.server.host}:${config.server.port}`
-      );
+      logger.info(`Server listening at: http://localhost:${port}`);
     });
   } catch (error) {
     logger.error(`Error during server initialization: ${error}`);
