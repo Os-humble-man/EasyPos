@@ -47,7 +47,6 @@ export default function DashboardPage() {
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),

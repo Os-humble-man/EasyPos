@@ -55,7 +55,7 @@ import cookieParser from "cookie-parser";
 
     const server = http.createServer(app);
 
-    server.listen(4040, "0.0.0.0", () => {
+    server.listen(config.server.port, config.server.host, () => {
       logger.info(`Server Started At: ${new Date()}`);
       logger.info(
         `Server listening at: http://${config.server.host}:${config.server.port}`

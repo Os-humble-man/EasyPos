@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Logs {
@@ -14,12 +15,12 @@ model Logs {
   created_at DateTime @default(now()) @db.Timestamp(0)
   users      Users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "logs_ibfk_1")
 
-  @@index([user_id], map: "user_id")
+  @@index([user_id], map: "logs_user_id_index")
 }
 
 model Payments {
   id             Int                     @id @default(autoincrement())
-  noPlaque       String                  @unique(map: "receipt_number") @db.VarChar(255)
+  noPlaque       String                  @unique(map: "payments_noPlaque_unique") @db.VarChar(255)
   tax_id         Int
   agent_id       Int
   pos_id         Int
@@ -32,14 +33,14 @@ model Payments {
   users          Users                   @relation(fields: [agent_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_2")
   pos_devices    PosDevices              @relation(fields: [pos_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "payments_ibfk_3")
 
-  @@index([agent_id], map: "agent_id")
-  @@index([pos_id], map: "pos_id")
-  @@index([tax_id], map: "tax_id")
+  @@index([agent_id], map: "payments_agent_id_index")
+  @@index([pos_id], map: "payments_pos_id_index")
+  @@index([tax_id], map: "payments_tax_id_index")
 }
 
 model Permissions {
   id               Int               @id @default(autoincrement())
-  name             String            @unique(map: "name") @db.VarChar(255)
+  name             String            @unique(map: "permissions_name_unique") @db.VarChar(255)
   user_permissions UserPermissions[]
 }
 
@@ -51,12 +52,12 @@ model PosDevices {
   created_at  DateTime   @default(now()) @db.Timestamp(0)
   status      PosStatus  @default(active)
   payments    Payments[]
-  users       Users      @relation(fields: [agent_id], references: [id]) // Relation vers Users
+  users       Users      @relation(fields: [agent_id], references: [id])
 }
 
 model Taxes {
   id         Int        @id @default(autoincrement())
-  name       String     @unique(map: "name") @db.VarChar(255)
+  name       String     @unique(map: "taxes_name_unique") @db.VarChar(255)
   type       TaxesType
   amount     Decimal?   @db.Decimal(10, 2)
   created_at DateTime   @default(now()) @db.Timestamp(0)
@@ -70,14 +71,14 @@ model UserPermissions {
   permissions   Permissions @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_permissions_ibfk_2")
 
   @@id([user_id, permission_id])
-  @@index([permission_id], map: "permission_id")
+  @@index([permission_id], map: "user_permissions_permission_id_index")
 }
 
 model Users {
   id               Int               @id @default(autoincrement())
   name             String            @db.VarChar(255)
   last_name        String            @db.VarChar(255)
-  email            String            @unique(map: "email") @db.VarChar(255)
+  email            String            @unique(map: "users_email_unique") @db.VarChar(255)
   password         String            @db.VarChar(255)
   role             UsersRole         @default(agent)
   status           UsersStatus       @default(active)
@@ -87,7 +88,7 @@ model Users {
   payments         Payments[]
   refreshTokens    RefreshToken?
   user_permissions UserPermissions[]
-  posDevices       PosDevices[]      // Relation inverse vers PosDevices
+  posDevices       PosDevices[]
 }
 
 model RefreshToken {
