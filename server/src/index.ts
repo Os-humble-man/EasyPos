@@ -11,8 +11,6 @@ import { makeApiRouter } from "./routes";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 
-
-
 (async () => {
   try {
     dotenv.config();
@@ -21,9 +19,9 @@ import cookieParser from "cookie-parser";
       cors({
         origin:
           process.env.NODE_ENV === "production"
-            ? "https://autolbm.com" 
-            : "http://localhost:5173", 
-        credentials: true, 
+            ? "https://autolbm.com"
+            : "http://192.168.52.86:5173",
+        credentials: true,
       })
     );
     app.use(helmet());
@@ -31,20 +29,23 @@ import cookieParser from "cookie-parser";
     app.use(express.json());
     app.use(cookieParser());
 
-    app.use(session({
-      secret: process.env.SESSION_SECRET || "",
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        sameSite: "strict",
-        maxAge: 1000 * 60 * 60 * 24,
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-        path: "/",
-        domain: process.env.NODE_ENV === "production" ? "autolbm.com" : undefined
-      },
-    }))
+    app.use(
+      session({
+        secret: process.env.SESSION_SECRET || "",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          secure: process.env.NODE_ENV === "production",
+          httpOnly: true,
+          sameSite: "strict",
+          maxAge: 1000 * 60 * 60 * 24,
+          expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+          path: "/",
+          domain:
+            process.env.NODE_ENV === "production" ? "autolbm.com" : undefined,
+        },
+      })
+    );
     // app.use(sessionMiddleware);
 
     makeApiRouter(app);
@@ -54,7 +55,7 @@ import cookieParser from "cookie-parser";
 
     const server = http.createServer(app);
 
-    server.listen(config.server.port, config.server.host, () => {
+    server.listen(4040, "0.0.0.0", () => {
       logger.info(`Server Started At: ${new Date()}`);
       logger.info(
         `Server listening at: http://${config.server.host}:${config.server.port}`

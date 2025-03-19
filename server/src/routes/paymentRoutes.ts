@@ -3,9 +3,11 @@ import { PaymentController } from "../controller/paymentController";
 import { authenticate } from "../middleware/authMiddleware";
 
 const paymentRouter = Router();
-// paymentRouter.get("/taxes", taxController.getAllTaxes);
 paymentRouter.post("/payment", authenticate, PaymentController.createPayment);
-// paymentRouter.put("/taxe", taxController.updateTax);
-// paymentRouter.delete("/taxe", taxController.deleteTax);
+paymentRouter.get(
+  "/payment/:id",
+  authenticate,
+  PaymentController.getPaymentById
+);
 
 export default paymentRouter;

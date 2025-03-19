@@ -1,19 +1,15 @@
-import { Payments } from "@prisma/client";
 import prisma from "../_core/database";
 import { logger } from "../_core/Logger";
 
 function genererReferencePaiement(agentId: number, posId: number): string {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
   const day = String(now.getDate()).padStart(2, "0");
   const hour = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
-  const secondes = String(now.getSeconds()).padStart(2, "0");
-  const dateTime = `${year}${month}${day}${hour}${minutes}${secondes}`;
-  const random = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-  const referencePaiement = `REF-${agentId}-POS${posId}-${dateTime}-${random}`;
-  return referencePaiement;
+  const dateTime = `${day}${hour}${minutes}`;
+  const random = Math.floor(Math.random() * 90 + 10);
+
+  return `${agentId}-${posId}-${dateTime}-${random}`;
 }
 
 export const paymentModel = {
@@ -44,6 +40,56 @@ export const paymentModel = {
       return payment;
     } catch (error: Error | any) {
       logger.error(error);
+    }
+  },
+
+  getPaymentById: async (id: number) => {
+    try {
+      const payment = await prisma.payments.findUnique({
+        where: { id },
+        include: {
+          users: true,
+          pos_devices: true,
+          taxes: true,
+        },
+      });
+
+      if (!payment) {
+        throw new Error("Payment not found");
+      }
+
+      return {
+        id: payment.id,
+        noPlaque: payment.noPlaque,
+        amount: payment.amount,
+        reason: payment.reason,
+        payment_method: payment.payment_method,
+        payment_date: payment.payment_date,
+        reference: payment.reference,
+        agent: {
+          id: payment.users.id,
+          name: payment.users.name,
+          last_name: payment.users.last_name,
+          email: payment.users.email,
+        },
+        pos: {
+          id: payment.pos_devices.id,
+          device_name: payment.pos_devices.device_name,
+          location: payment.pos_devices.location,
+          status: payment.pos_devices.status,
+        },
+        tax: {
+          id: payment.taxes.id,
+          name: payment.taxes.name,
+          type: payment.taxes.type,
+          amount: payment.taxes.amount,
+        },
+      };
+    } catch (error: any) {
+      logger.error(error);
+      throw new Error(
+        error.message || "An error occurred while fetching the payment"
+      );
     }
   },
 };

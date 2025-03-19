@@ -1,68 +1,49 @@
-"use client";
-
 import { useEffect, useState } from "react";
-import { ArrowLeft, Download, Printer } from "lucide-react";
-import { useLocation } from "react-router-dom";
-
+import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import moment from "moment";
+
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useNavigate, useParams } from "react-router-dom";
 import logo from "@/assets/logopos.png";
+import PaymentService, { Payment } from "@/services/PaymentService";
 
 export default function InvoicePage() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const location = useLocation(); // Pour accéder aux données passées via navigate
-  const [invoice, setInvoice] = useState(null);
+  const [invoice, setInvoice] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchInvoiceDetails = async (invoiceId: number) => {
+    try {
+      const response = await PaymentService.getPaymentById(invoiceId);
+      if (response) {
+        setInvoice(response);
+      } else {
+        setError("Facture non trouvée");
+      }
+    } catch (err) {
+      console.error("Erreur lors de la récupération de la facture :", err);
+      setError(
+        "Une erreur s'est produite lors de la récupération de la facture."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Utiliser les données passées via navigate
-    const invoiceData = location.state || {
-      noPlaque: "Nº 00AR-00",
-      denomination: "Oscar Kanangila",
-      montant: 50000,
-      motif: "Paiement de la taxe",
-    };
-
-    const mockInvoice = {
-      id: id,
-      number: `INV-${id}`,
-      date: "2025-03-10",
-      dueDate: "2025-03-10",
-      user: {
-        name: "John Doe",
-        email: "john@example.com",
-        address: "123 Main St, Anytown, USA",
-      },
-      items: [
-        {
-          description: "Income Tax Payment",
-          amount: invoiceData.montant,
-        },
-      ],
-      subtotal: invoiceData.montant,
-      tax: 0,
-      total: invoiceData.montant,
-      status: "Paid",
-      noPlaque: invoiceData.noPlaque,
-      denomination: invoiceData.denomination,
-      motif: invoiceData.motif,
-    };
-
-    setTimeout(() => {
-      setInvoice(mockInvoice);
-      setLoading(false);
-    }, 500);
-  }, [id, location.state]);
+    if (id) {
+      fetchInvoiceDetails(Number(id));
+    }
+  }, [id]);
 
   const handlePrint = () => {
     window.print();
@@ -71,7 +52,23 @@ export default function InvoicePage() {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <p>Loading invoice...</p>
+        <p>Chargement de la facture...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+
+  if (!invoice) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p>Aucune donnée de facture disponible.</p>
       </div>
     );
   }
@@ -85,7 +82,7 @@ export default function InvoicePage() {
           className="gap-1 text-xs"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Retour
         </Button>
         <Button
           variant="outline"
@@ -93,21 +90,25 @@ export default function InvoicePage() {
           className="gap-1 text-xs"
         >
           <Printer className="h-4 w-4" />
-          Print
+          Imprimer
         </Button>
       </div>
 
-      <Card className="mx-auto max-w-xs relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center opacity-20 print-background">
-          <img src={logo} alt="" className="w-32 h-32" />{" "}
+      <Card className="mx-auto max-w-xs relative overflow-hidden print:p-2 print:max-w-none print:border-none">
+        <div className="absolute inset-0 flex items-center justify-center opacity-20 print:opacity-10">
+          <img src={logo} alt="" className="w-24 h-24 print:w-20 print:h-20" />
         </div>
 
-        <CardHeader>
-          <div className="flex flex-col items-center justify-center space-y-2 md:flex-row md:space-y-0 ">
+        <CardHeader className="print:p-2">
+          <div className="flex flex-col items-center justify-center space-y-2 md:flex-row md:space-y-0">
             <div className="z-10">
-              <img src={logo} alt="" className="w-16 h-16" />{" "}
+              <img
+                src={logo}
+                alt=""
+                className="w-12 h-12 print:w-10 print:h-10"
+              />
             </div>
-            <div className="text-center text-xs z-10">
+            <div className="text-center text-xs z-10 print:text-xxs">
               <h2 className="font-bold">République démocratique du Congo</h2>
               <p>Province du Haut Katanga</p>
               <p>Secteur des BALAMBA</p>
@@ -115,67 +116,79 @@ export default function InvoicePage() {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 print:p-2">
           <div className="grid grid-cols-1 gap-4">
             <div className="text-right">
               <div className="space-y-1">
                 <div className="flex justify-between">
-                  <p className="text-xs font-medium">Quittance:</p>
-                  <p className="text-xs">Nº 001</p>
+                  <p className="text-xs font-medium print:text-xxs">
+                    Quittance:
+                  </p>
+                  <p className="text-xs print:text-xxs">Nº {invoice?.id}</p>
                 </div>
                 <div className="flex justify-between">
-                  <p className="text-xs">Plaque:</p>
-                  <p className="text-xs">{invoice.noPlaque}</p>
+                  <p className="text-xs print:text-xxs">Plaque:</p>
+                  <p className="text-xs print:text-xxs">{invoice.noPlaque}</p>
                 </div>
+                {/* <div className="flex justify-between">
+                  <p className="text-xs text-green-500 print:text-xxs">
+                    REF : {invoice.reference}
+                  </p>
+                </div> */}
                 <div className="flex justify-between">
-                  <p className="text-xs font-medium">Status:</p>
-                  <p className="text-xs text-green-500">{invoice.status}</p>
+                  <p className="text-xs print:text-xxs">REF : </p>
+                  <p className="text-xs print:text-xxs text-green-500">
+                    {invoice.reference}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="print:my-2" />
 
           <div>
-            <div className="">
-              <div className="grid grid-cols-2 p-2 font-medium text-xs">
+            <div className="text-sm">
+              <div className="grid grid-cols-2 py-3 font-medium text-xs print:py-1 print:text-xxs">
                 <div>Dénomination</div>
-                <div className="text-right">{invoice.denomination}</div>
+                <div className="text-right">{invoice.tax.name}</div>
               </div>
-              <div className="grid grid-cols-2 p-2 font-medium text-xs">
+              <div className="grid grid-cols-2 py-2 font-medium text-xs print:py-1 print:text-xxs">
                 <div>Montant</div>
-                <div className="text-right">{invoice.total} FC</div>
+                <div className="text-right">{invoice.amount} FC</div>
               </div>
-              <div className="grid grid-cols-2 p-2 font-medium text-xs">
+              <div className="grid grid-cols-2 py-2 font-medium text-xs print:py-1 print:text-xxs">
                 <div>Motif</div>
-                <div className="text-right">{invoice.motif}</div>
+                <div className="text-right">{invoice.reason}</div>
               </div>
-              <Separator />
+              <Separator className="print:my-2" />
             </div>
           </div>
 
-          <div className="flex flex-col items-end space-y-1">
-            <div className="flex w-full justify-between text-xs">
-              <p className="font-medium">Nom du percepteur/trice:</p>
-              <p>Kasong Mulaj</p>
+          <div className="flex flex-col items-end space-y-1 text-sm print:text-xxs">
+            <div className="flex w-full justify-between text-xs print:text-xxs">
+              <p className="font-medium">Percepteur/trice:</p>
+              <p>
+                {invoice.agent.name}{" "}
+                <span className="capitalize">{invoice.agent.last_name[0]}</span>
+                .
+              </p>
             </div>
-            <div className="flex w-full justify-between text-xs">
-              <p className="font-medium">Fait à Tshinsenda le:</p>
-              <p>15/03/2025</p>
+            <div className="flex w-full justify-between text-xs print:text-xxs">
+              <p className="font-medium">
+                Fait à Tshinsenda {invoice.location}
+              </p>
+              <p>{moment(invoice.payment_date).format("DD/MM/YY HH:mm")}</p>
             </div>
-            <Separator className="w-full" />
-            <div className="flex w-full justify-between text-xs font-bold">
-              <p>Signature:</p>
+            <Separator className="w-full print:my-2" />
+            <div className="flex w-full justify-between text-xs font-bold print:text-xxs">
+              <p className=" my-3">Signature:</p>
             </div>
           </div>
         </CardContent>
 
-        <CardFooter className="text-center text-xs text-muted-foreground">
-          {/* <p>
-      Thank you for your payment. This is an official receipt for your tax
-      payment.
-    </p> */}
+        <CardFooter className="text-center text-xs text-muted-foreground print:p-2 print:text-xxs">
+          <p>Merci pour votre paiement. Ceci est un reçu officiel.</p>
         </CardFooter>
       </Card>
     </div>

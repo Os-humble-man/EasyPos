@@ -7,7 +7,7 @@ interface ApiResponse<T> {
   message?: string;
 }
 
-const API_BASE_URL = "http://localhost:4040/api";
+const API_BASE_URL = "http://192.168.52.86:4040/api";
 
 class ApiClient {
   private AxiosInstance: AxiosInstance;
@@ -21,7 +21,6 @@ class ApiClient {
       withCredentials: true, // Activer l'envoi des cookies
     });
 
-    // Intercepteur de requête
     this.AxiosInstance.interceptors.request.use(
       (config) => config,
       (error) => {
@@ -34,7 +33,10 @@ class ApiClient {
     this.AxiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
-        console.error("API Response Error: ", error.response?.data || error.message);
+        console.error(
+          "API Response Error: ",
+          error.response?.data || error.message
+        );
         return Promise.reject(error);
       }
     );
@@ -44,7 +46,10 @@ class ApiClient {
     url: string,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.get(url, config);
+    const response: AxiosResponse<T> = await this.AxiosInstance.get(
+      url,
+      config
+    );
     return {
       data: response.data,
       status: response.status,
@@ -57,7 +62,11 @@ class ApiClient {
     body: U,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.post(url, body, config);
+    const response: AxiosResponse<T> = await this.AxiosInstance.post(
+      url,
+      body,
+      config
+    );
     return {
       data: response.data,
       status: response.status,
@@ -70,7 +79,11 @@ class ApiClient {
     body: U,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.put(url, body, config);
+    const response: AxiosResponse<T> = await this.AxiosInstance.put(
+      url,
+      body,
+      config
+    );
     return {
       data: response.data,
       status: response.status,
@@ -82,7 +95,10 @@ class ApiClient {
     url: string,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response: AxiosResponse<T> = await this.AxiosInstance.delete(url, config);
+    const response: AxiosResponse<T> = await this.AxiosInstance.delete(
+      url,
+      config
+    );
     return {
       data: response.data,
       status: response.status,

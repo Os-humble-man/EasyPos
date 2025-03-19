@@ -65,6 +65,7 @@ export default function DashboardPage() {
       console.log(response);
 
       if (response.status === 201) {
+        toast("Paiement effectué avec succès.");
         navigate(`/invoice/${response.data.id}`, {
           state: {
             noPlaque: data.noPlaque,
@@ -73,7 +74,6 @@ export default function DashboardPage() {
             motif: data.motif,
           },
         });
-        toast("Paiement effectué avec succès.");
         setIsSubmitting(false);
       }
     } catch (error) {

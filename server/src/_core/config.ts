@@ -27,7 +27,7 @@ type Configuration = {
 
 const config: Configuration = {
   server: {
-    host: envString("HTTP_HOST", "localhost"),
+    host: envString("HTTP_HOST", "0.0.0.0"),
     port: envNumber("HTTP_PORT", 4040),
   },
   mysql: {

@@ -8,6 +8,16 @@ export interface Payment {
   tax_id?: number;
   pos_id?: number;
   reason?: string;
+  reference: string;
+  agent: {
+    name: string;
+    last_name: string;
+  };
+  location: string;
+  payment_date: string;
+  tax: {
+    name: string;
+  };
 }
 
 const PaymentService = {
