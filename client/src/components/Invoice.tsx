@@ -151,7 +151,7 @@ export default function InvoicePage() {
             <div className="text-sm">
               <div className="grid grid-cols-2 py-3 font-medium text-xs print:py-1 print:text-xxs">
                 <div>Dénomination</div>
-                <div className="text-right">{invoice.tax.name}</div>
+                <div className="text-right">{invoice.tax?.name}</div>
               </div>
               <div className="grid grid-cols-2 py-2 font-medium text-xs print:py-1 print:text-xxs">
                 <div>Montant</div>
@@ -169,8 +169,10 @@ export default function InvoicePage() {
             <div className="flex w-full justify-between text-xs print:text-xxs">
               <p className="font-medium">Percepteur/trice:</p>
               <p>
-                {invoice.agent.name}{" "}
-                <span className="capitalize">{invoice.agent.last_name[0]}</span>
+                {invoice.agent?.name}{" "}
+                {invoice.agent && (
+                  <span className="capitalize">{invoice.agent.last_name[0]}</span>
+                )}
                 .
               </p>
             </div>

@@ -100,6 +100,7 @@ export default function AdminDashboardPage() {
     console.log(`Printing invoice for transaction ${id}`);
     // In a real application, this would generate and print an invoice
     alert(`Invoice for transaction ${id} is being prepared for printing.`);
+    setSearchTerm("");
   };
 
   return (

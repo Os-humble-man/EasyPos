@@ -57,9 +57,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-
 import Layout from "@/layout/PageLayout";
-import { useNavigate } from "react-router-dom";
 import UserService from "@/services/userService";
 
 interface UserPermissions {
@@ -201,19 +199,19 @@ export default function UsersPage() {
   const [currentUser, setCurrentUser] = useState<
     (typeof initialUsers)[0] | null
   >(null);
-  const [newUser, setNewUser] = useState({
-    name: "",
-    email: "",
-    role: "User",
-    status: "Active",
-    permissions: {
-      makePayments: true,
-      viewHistory: true,
-      downloadInvoices: true,
-      manageUsers: false,
-      manageTaxes: false,
-    },
-  });
+  // const [newUser, setNewUser] = useState({
+  //   name: "",
+  //   email: "",
+  //   role: "User",
+  //   status: "Active",
+  //   permissions: {
+  //     makePayments: true,
+  //     viewHistory: true,
+  //     downloadInvoices: true,
+  //     manageUsers: false,
+  //     manageTaxes: false,
+  //   },
+  // });
 
   // Filter users based on search term
   const filteredUsers = users.filter(
@@ -221,37 +219,39 @@ export default function UsersPage() {
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase())
+      
   );
 
-  const handleAddUser = () => {
-    const id = Math.max(...users.map((user) => user.id)) + 1;
-    const lastLogin = new Date()
-      .toISOString()
-      .replace("T", " ")
-      .substring(0, 16);
+  // const handleAddUser = () => {
+  //   const id = Math.max(...users.map((user) => user.id)) + 1;
+  //   const lastLogin = new Date()
+  //     .toISOString()
+  //     .replace("T", " ")
+  //     .substring(0, 16);
 
-    setUsers([...users, { ...newUser, id, lastLogin }]);
-    setNewUser({
-      name: "",
-      email: "",
-      role: "User",
-      status: "Active",
-      permissions: {
-        makePayments: true,
-        viewHistory: true,
-        downloadInvoices: true,
-        manageUsers: false,
-        manageTaxes: false,
-      },
-    });
-    setIsAddUserOpen(false);
-  };
+  //   setUsers([...users, { ...newUser, id, lastLogin }]);
+  //   setNewUser({
+  //     name: "",
+  //     email: "",
+  //     role: "User",
+  //     status: "Active",
+  //     permissions: {
+  //       makePayments: true,
+  //       viewHistory: true,
+  //       downloadInvoices: true,
+  //       manageUsers: false,
+  //       manageTaxes: false,
+  //     },
+  //   });
+  //   setIsAddUserOpen(false);
+  // };
 
   const handleEditUser = () => {
     setUsers(
       users.map((user) => (user.id === currentUser?.id ? currentUser : user))
     );
     setIsEditUserOpen(false);
+    setSearchTerm("");
   };
 
   const handleSavePermissions = () => {
@@ -299,7 +299,7 @@ export default function UsersPage() {
 
       const response = await UserService.createUser(data);
 
-      if (response.status === 201) {
+      if (response) {
         console.log("User created successfully");
         setIsLoading(false);
         setIsAddUserOpen(false);

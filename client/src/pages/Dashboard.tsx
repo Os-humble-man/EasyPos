@@ -60,12 +60,19 @@ export default function DashboardPage() {
   }) => {
     setIsSubmitting(true);
     try {
-      const response = await PaymentService.createPayment(data);
+
+      const payment = {
+          noPlaque: data.noPlaque,
+          amount: data.montant,
+          reason: data.motif,
+          tax_id:data.denomination
+      }
+      const response = await PaymentService.createPayment(payment);
       console.log(response);
 
-      if (response.status === 201) {
+      if (response) {
         toast("Paiement effectué avec succès.");
-        navigate(`/invoice/${response.data.id}`, {
+        navigate(`/invoice/${response.id}`, {
           state: {
             noPlaque: data.noPlaque,
             denomination: data.denomination,

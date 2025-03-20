@@ -7,13 +7,16 @@ export interface User {
   lastName: string;
   role?: string;
   password?: string;
-  posId?: number | null; // Ajouter posId si nécessaire
+  posId?: number | null; 
 }
 
 interface LoginResponse {
-  user: User;
-  accessToken: string;
-  status: number; // Ajouter le statut de la réponse
+  user: {
+    userId: number;
+    posId: number;
+    role: string;
+  };
+  status: number;
 }
 
 const UserService = {

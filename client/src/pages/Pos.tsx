@@ -130,12 +130,6 @@ export default function POSPage() {
     location: string;
     status: string;
   } | null>(null);
-  const [newPOS, setNewPOS] = useState({
-    name: "",
-    agent: "",
-    location: "",
-    status: "Active",
-  });
 
   // Filter POS devices based on search term
   const filteredPOS = posDevices.filter(
@@ -145,32 +139,32 @@ export default function POSPage() {
       pos.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddPOS = () => {
-    const id = Math.max(...posDevices.map((pos) => pos.id)) + 1;
-    const lastActive = new Date()
-      .toISOString()
-      .replace("T", " ")
-      .substring(0, 16);
+  // const handleAddPOS = () => {
+  //   const id = Math.max(...posDevices.map((pos) => pos.id)) + 1;
+  //   const lastActive = new Date()
+  //     .toISOString()
+  //     .replace("T", " ")
+  //     .substring(0, 16);
 
-    setPosDevices([
-      ...posDevices,
-      {
-        ...newPOS,
-        id,
-        lastActive,
-        transactions: 0,
-      },
-    ]);
+  //   setPosDevices([
+  //     ...posDevices,
+  //     {
+  //       ...newPOS,
+  //       id,
+  //       lastActive,
+  //       transactions: 0,
+  //     },
+  //   ]);
 
-    setNewPOS({
-      name: "",
-      agent: "",
-      location: "",
-      status: "Active",
-    });
+  //   setNewPOS({
+  //     name: "",
+  //     agent: "",
+  //     location: "",
+  //     status: "Active",
+  //   });
 
-    setIsAddPOSOpen(false);
-  };
+  //   setIsAddPOSOpen(false);
+  // };
 
   const handleEditPOS = () => {
     if (currentPOS) {
@@ -187,6 +181,7 @@ export default function POSPage() {
       );
     }
     setIsEditPOSOpen(false);
+    setSearchTerm("");
   };
 
   interface POSDevice {
@@ -224,11 +219,23 @@ export default function POSPage() {
     setIsEditPOSOpen(true);
   };
 
-  const onSubmit = async (data: any) => {
+  interface FormData {
+    device_name: string;
+    agent_id: number;
+    location: string;
+    status: string;
+  }
+
+  const onSubmit = async (data: FormData) => {
     // handleAddPOS(data:);
 
     try {
-      const response = await PosService.createPos(data);
+      const newPos = {
+        ...data,
+        id: posDevices.length ? Math.max(...posDevices.map(pos => pos.id)) + 1 : 1,
+        created_at: new Date().toISOString(),
+      };
+      const response = await PosService.createPos(newPos);
       console.log(response);
 
       if (response) {
@@ -290,15 +297,15 @@ export default function POSPage() {
                       render={({ field }) => (
                         <Select
                           onValueChange={field.onChange}
-                          value={field.value}
+                          value={String(field.value)}
                         >
                           <SelectTrigger id="agent_id">
                             <SelectValue placeholder="Select agent" />
                           </SelectTrigger>
                           <SelectContent>
                             {agents.map((agent) => (
-                              <SelectItem key={agent.id} value={agent.id}>
-                                {agent.name}
+                              <SelectItem key={agent.id} value={String(agent.id)}>
+                                {agent?.firstName }
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -624,8 +631,8 @@ export default function POSPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {agents.map((agent) => (
-                        <SelectItem key={agent.id} value={agent.name}>
-                          {agent.name}
+                        <SelectItem key={agent.id} value={agent.firstName}>
+                          {agent.firstName}
                         </SelectItem>
                       ))}
                     </SelectContent>

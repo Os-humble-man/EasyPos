@@ -206,10 +206,11 @@ export default function TaxesPage() {
       //     taxes.map((tax) => (tax.id === currentTax.id ? currentTax : tax))
       //   );
     }
+    setSearchTerm("");
     setIsEditTaxOpen(false);
   };
 
-  const handleToggleStatus = (taxId: any) => {
+  const handleToggleStatus = (taxId: number) => {
     setTaxes(
       taxes.map((tax) => {
         if (tax.id === taxId) {

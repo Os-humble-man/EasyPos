@@ -2,31 +2,32 @@ import apiClient from "@/api/apiClient";
 
 export interface Payment {
   id?: number;
-  agent_id?: number;
-  noPlaque?: number;
+  noPlaque?: string;
   amount?: number;
-  tax_id?: number;
-  pos_id?: number;
+  tax_id?: string;
   reason?: string;
-  reference: string;
-  agent: {
+  agent_id?: number;
+  tax?:{
+    id: number;
+    name: string;
+  }
+  agent?:{
+    id: number;
     name: string;
     last_name: string;
-  };
-  location: string;
-  payment_date: string;
-  tax: {
-    name: string;
-  };
+  }
+  location?:string;
+  reference?:string;
+  payment_date?:string;
 }
 
 const PaymentService = {
-  createPayment: async (payment: Payment): Promise<any> => {
+  createPayment: async (payment: Payment): Promise<Payment> => {
     const response = await apiClient.post<Payment, Payment>(
       "/payment",
       payment
     );
-    return response;
+    return response.data;
   },
   getAllPayments: async (): Promise<Payment[]> => {
     const response = await apiClient.get<Payment[]>("/payments");

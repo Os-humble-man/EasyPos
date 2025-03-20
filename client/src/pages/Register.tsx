@@ -73,7 +73,7 @@ export default function RegisterPage() {
         password: data.password,
       };
       const response = await UserService.createUser(user);
-      if (response.status === 201) {
+      if (response) {
         console.log("User created successfully");
         setIsLoading(false);
         navigate("/dashboard");
