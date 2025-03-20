@@ -8,7 +8,7 @@ import UsersPage from "./pages/Users";
 import TaxesPage from "./pages/Taxes";
 import POSPage from "./pages/Pos";
 import InvoicePage from "./components/Invoice";
-import PrivateRoute from "./components/PrivateRoute";
+// import PrivateRoute from "./components/PrivateRoute";
 // import { useAuthStore } from "./store/authStore";
 // import { useEffect } from "react";
 
@@ -26,7 +26,7 @@ const App: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route element={<PrivateRoute />}>
+        {/* <Route element={<PrivateRoute />}> */}
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin/users" element={<UsersPage />} />
@@ -34,7 +34,7 @@ const App: React.FC = () => {
           <Route path="/admin/pos" element={<POSPage />} />
           {/* Ajoutez le paramètre dynamique :id à la route /invoice */}
           <Route path="/invoice/:id" element={<InvoicePage />} />
-        </Route>
+        {/* </Route> */}
       </Routes>
     </Router>
   );
