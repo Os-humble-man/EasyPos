@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import prisma from "../_core/database";
+// import prisma from "../_core/database";
 
 const ACCESS_TOKEN_EXPIRY = "15m";
 const REFRESH_TOKEN_EXPIRY = "7d";
@@ -18,18 +18,18 @@ export const generateTokens = async (user: UserPayload) => {
     expiresIn: REFRESH_TOKEN_EXPIRY,
   });
 
-  await prisma.refreshToken.upsert({
-    where: { userId: user.userId },
-    update: {
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    },
-    create: {
-      userId: user.userId,
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    },
-  });
+  // await prisma.refreshToken.upsert({
+  //   where: { userId: user.userId },
+  //   update: {
+  //     token: refreshToken,
+  //     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  //   },
+  //   create: {
+  //     userId: user.userId,
+  //     token: refreshToken,
+  //     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  //   },
+  // });
 
   return { accessToken, refreshToken };
 };
