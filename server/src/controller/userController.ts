@@ -63,8 +63,8 @@ export const userController = {
       res.status(200).json({
         message: "Login successful",
       });
-    } catch (error) {
-      res.status(500).json({ message: "Internal server error" });
+    } catch (error: Error | any) {
+      res.status(500).json({ message: "Internal server error "+ error + error?.message });
       logger.error(error);
     }
   },
