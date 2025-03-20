@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -15,24 +15,37 @@ import cookieParser from "cookie-parser";
 
     const app = express();
 
+    const allowedOrigins = [
+      "https://easypos-production.up.railway.app",
+      "https://easy-posdrc.vercel.app", 
+      "http://localhost:3000",
+    ];
+
     app.use(
       cors({
         origin: (origin, callback) => {
-          const allowedOrigins = [
-            "https://easypos-production.up.railway.app",
-            "https://easy-posdrc.vercel.app/",
-            "http://localhost:3000",
-          ];
-
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
           } else {
-            callback(new Error("Not allowed by CORS"));
+            callback(new Error("Not allowed by CORS")); 
           }
         },
-        credentials: true,
+        credentials: true, 
       })
     );
+
+app.use((req: Request, res: Response, next: NextFunction): void => {
+  if (req.method === "OPTIONS") {
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.status(204).end(); 
+  } else {
+    next();
+  }
+});
+
+
 
     app.use(helmet());
     app.use(morgan("dev"));
@@ -45,16 +58,13 @@ import cookieParser from "cookie-parser";
         resave: false,
         saveUninitialized: false,
         cookie: {
-          secure: process.env.NODE_ENV === "production",
+          secure: process.env.NODE_ENV === "production", 
           httpOnly: true,
-          sameSite: "strict",
-          maxAge: 1000 * 60 * 60 * 24,
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: 1000 * 60 * 60 * 24, 
           expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
           path: "/",
-          domain:
-            process.env.NODE_ENV === "production"
-              ? "easypos-production.up.railway.app"
-              : undefined,
+          domain: undefined, 
         },
       })
     );
