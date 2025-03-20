@@ -23,10 +23,6 @@ import { Pool } from "pg";
       "http://localhost:3000",
     ];
 
-    if (!process.env.REDIS_URL) {
-      throw new Error("REDIS_URL is not defined in the environment variables");
-    }
-
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
     });
