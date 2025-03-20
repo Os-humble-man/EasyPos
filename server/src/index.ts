@@ -8,6 +8,8 @@ import http from "http";
 import { makeApiRouter } from "./routes";
 import session from "express-session";
 import cookieParser from "cookie-parser";
+import pgSession from "connect-pg-simple";
+import { Pool } from "pg";
 
 (async () => {
   try {
@@ -17,9 +19,20 @@ import cookieParser from "cookie-parser";
 
     const allowedOrigins = [
       "https://easypos-production.up.railway.app",
-      "https://easy-posdrc.vercel.app", 
+      "https://easy-posdrc.vercel.app",
       "http://localhost:3000",
     ];
+
+    if (!process.env.REDIS_URL) {
+      throw new Error("REDIS_URL is not defined in the environment variables");
+    }
+
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+    });
+    const PgSessionStore = pgSession(session);
+
+
 
     app.use(
       cors({
@@ -27,23 +40,23 @@ import cookieParser from "cookie-parser";
           if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
           } else {
-            callback(new Error("Not allowed by CORS")); 
+            callback(new Error("Not allowed by CORS"));
           }
         },
-        credentials: true, 
+        credentials: true,
       })
     );
 
-app.use((req: Request, res: Response, next: NextFunction): void => {
-  if (req.method === "OPTIONS") {
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.status(204).end(); 
-  } else {
-    next();
-  }
-});
+    app.use((req: Request, res: Response, next: NextFunction): void => {
+      if (req.method === "OPTIONS") {
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.status(204).end();
+      } else {
+        next();
+      }
+    });
 
 
 
@@ -52,21 +65,25 @@ app.use((req: Request, res: Response, next: NextFunction): void => {
     app.use(express.json());
     app.use(cookieParser());
 
- app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production", 
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 1000 * 60 * 60 * 24, 
-      path: "/",
-      domain: undefined, 
-    },
-  })
-);
+    app.use(
+      session({
+        store: new PgSessionStore({
+          pool: pool,
+          tableName: "session",
+        }),
+        secret: process.env.SESSION_SECRET || "",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          secure: process.env.NODE_ENV === "production",
+          httpOnly: true,
+          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          maxAge: 1000 * 60 * 60 * 24,
+          path: "/",
+          domain: undefined,
+        },
+      })
+    );
 
     makeApiRouter(app);
 

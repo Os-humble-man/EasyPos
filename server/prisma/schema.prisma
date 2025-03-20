@@ -99,6 +99,14 @@ model RefreshToken {
   user      Users    @relation(fields: [userId], references: [id])
 }
 
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime
+
+  @@map("session")
+}
+
 enum TaxesType {
   fixed
   variable

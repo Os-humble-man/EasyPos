@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production&& node dist/index.js",
+    "start": "NODE_ENV=production node dist/index.ts",
     "dev": "set NODE_ENV=development&& nodemon --exec ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"
@@ -17,6 +17,8 @@
     "@types/morgan": "^1.9.9",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
+    "connect-pg-simple": "^10.0.0",
+    "connect-redis": "^8.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -24,12 +26,15 @@
     "express-session": "^1.18.1",
     "helmet": "^8.1.0",
     "http": "^0.0.1-security",
+    "ioredis": "^5.6.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.9",
+    "pg": "^8.14.1",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
+    "redis": "^4.7.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
