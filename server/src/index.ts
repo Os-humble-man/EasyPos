@@ -21,7 +21,7 @@ import cookieParser from "cookie-parser";
           process.env.NODE_ENV === "production"
             ? [
                 "https://easypos-production.up.railway.app",
-                "https://easy-lyrsqisd4-oscars-projects-23ef7248.vercel.app"
+                "https://easy-pos-theta.vercel.app/"
               ]
             : "http://localhost:3000",
         credentials: true,
