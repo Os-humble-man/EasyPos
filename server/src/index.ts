@@ -17,13 +17,19 @@ import cookieParser from "cookie-parser";
 
     app.use(
       cors({
-        origin:
-          process.env.NODE_ENV === "production"
-            ? [
-                "https://easypos-production.up.railway.app",
-                "https://easy-pos-theta.vercel.app/"
-              ]
-            : "http://localhost:3000",
+        origin: (origin, callback) => {
+          const allowedOrigins = [
+            "https://easypos-production.up.railway.app",
+            "https://easy-posdrc.vercel.app/",
+            "http://localhost:3000",
+          ];
+
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error("Not allowed by CORS"));
+          }
+        },
         credentials: true,
       })
     );
