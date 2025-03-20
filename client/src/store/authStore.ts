@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             // eslint-disable-next-line @typescript-eslint/no-empty-object-type
             const { data } = await apiClient.post<User, {}>(
               "/auth/refresh-token",
-              {}, // Corps de la requête vide
+              {}, 
               { withCredentials: true }
             );
             set({ user: data, isAuthenticated: true });

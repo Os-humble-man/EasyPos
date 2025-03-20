@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-// Définir l'interface pour le payload du token
 interface JwtPayload {
   user: {
     userId: number;
@@ -15,7 +14,7 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.cookies.accessToken;
+  const token = req.cookies._vercel_jwt;
 
   if (!token) {
     res.status(401).json({ message: "Access forbidden: No token provided" });
