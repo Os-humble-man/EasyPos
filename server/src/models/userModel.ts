@@ -58,7 +58,7 @@ export const userModel = {
     } catch (error: any) {
       throw new Error(error.message || "An error occurred during login");
     }finally{
-      prisma.$disconnect();
+      await prisma.$disconnect();
     }
   },
   refreshToken: async (refreshToken: string) => {

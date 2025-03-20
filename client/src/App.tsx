@@ -7,17 +7,17 @@ import AdminDashboardPage from "./pages/admin/dashboard";
 import UsersPage from "./pages/Users";
 import TaxesPage from "./pages/Taxes";
 import POSPage from "./pages/Pos";
-import InvoicePage from "./components/Invoice"; // Assurez-vous que le chemin est correct
+import InvoicePage from "./components/Invoice";
 import PrivateRoute from "./components/PrivateRoute";
-import { useAuthStore } from "./store/authStore";
-import { useEffect } from "react";
+// import { useAuthStore } from "./store/authStore";
+// import { useEffect } from "react";
 
 const App: React.FC = () => {
-  const { checkAuth } = useAuthStore();
+  // const { checkAuth } = useAuthStore();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  // useEffect(() => {
+  //   checkAuth();
+  // }, []);
 
   return (
     <Router>
