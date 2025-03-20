@@ -65,22 +65,22 @@ export const userController = {
     }
   },
 
-  refresh: async (req: Request, res: Response): Promise<void> => {
-    logger.info("Refresh token");
+  // refresh: async (req: Request, res: Response): Promise<void> => {
+  //   logger.info("Refresh token");
 
-    try {
-      const refreshToken = await userModel.getRefreshTokenById(req.userId);
-      if (!refreshToken) {
-        res.status(403).json({ message: "Refresh token required" });
-        return;
-      }
-      const userId = await userModel.refreshToken(refreshToken);
-      const newTokens = await generateTokens(userId);
-      res.json(newTokens);
-    } catch (error) {
-      res.status(403).json({ message: "Expired or invalid token" });
-    }
-  },
+  //   try {
+  //     const refreshToken = await userModel.getRefreshTokenById(req.userId);
+  //     if (!refreshToken) {
+  //       res.status(403).json({ message: "Refresh token required" });
+  //       return;
+  //     }
+  //     const userId = await userModel.refreshToken(refreshToken);
+  //     const newTokens = await generateTokens(userId);
+  //     res.json(newTokens);
+  //   } catch (error) {
+  //     res.status(403).json({ message: "Expired or invalid token" });
+  //   }
+  // },
 
   getUsers: async (req: Request, res: Response) => {
     try {

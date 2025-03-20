@@ -57,28 +57,28 @@ export const userModel = {
       };
     } catch (error: any) {
       throw new Error(error.message || "An error occurred during login");
-    }finally{
+    } finally {
       await prisma.$disconnect();
     }
   },
-  refreshToken: async (refreshToken: string) => {
-    try {
-      const tokenInDb = await prisma.refreshToken.findMany({
-        where: { token: refreshToken },
-      });
-      if (!tokenInDb) throw new Error("Invalid refresh token");
-      if (!process.env.JWT_REFRESH_SECRET) {
-        throw new Error("JWT_REFRESH_SECRET is not defined");
-      }
-      const decoded = jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_SECRET
-      ) as jwt.JwtPayload;
-      return decoded.userId;
-    } catch (error: Error | any) {
-      throw new Error(error);
-    }
-  },
+  // refreshToken: async (refreshToken: string) => {
+  //   try {
+  //     const tokenInDb = await prisma.refreshToken.findMany({
+  //       where: { token: refreshToken },
+  //     });
+  //     if (!tokenInDb) throw new Error("Invalid refresh token");
+  //     if (!process.env.JWT_REFRESH_SECRET) {
+  //       throw new Error("JWT_REFRESH_SECRET is not defined");
+  //     }
+  //     const decoded = jwt.verify(
+  //       refreshToken,
+  //       process.env.JWT_REFRESH_SECRET
+  //     ) as jwt.JwtPayload;
+  //     return decoded.userId;
+  //   } catch (error: Error | any) {
+  //     throw new Error(error);
+  //   }
+  // },
 
   getUsers: async (): Promise<
     Array<
@@ -126,15 +126,15 @@ export const userModel = {
       return null;
     }
   },
-  getRefreshTokenById: async (id: any): Promise<string | null> => {
-    try {
-      const refreshToken =  await prisma.refreshToken.findUnique({
-        where: { userId: id },
-      });
-      return refreshToken?.token || null;
-    } catch (error: any) {
-      console.error("Failed to get refresh token by id", error);
-      return null;
-    }
-  },
+  // getRefreshTokenById: async (id: any): Promise<string | null> => {
+  //   try {
+  //     const refreshToken = await prisma.refreshToken.findUnique({
+  //       where: { userId: id },
+  //     });
+  //     return refreshToken?.token || null;
+  //   } catch (error: any) {
+  //     console.error("Failed to get refresh token by id", error);
+  //     return null;
+  //   }
+  // },
 };
