@@ -14,7 +14,14 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.cookies.accessToken;
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    res.status(401).json({ message: "Access forbidden: No token provided" });
+    return;
+  }
+
+  const token = authHeader.split(" ")[1];
 
   if (!token) {
     res.status(401).json({ message: "Access forbidden: No token provided" });
@@ -33,7 +40,7 @@ export const authenticate = (
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      console.error("Token expired at:", error.expiredAt); 
+      console.error("Token expired at:", error.expiredAt);
       res.status(401).json({ message: "Access forbidden: Token expired" });
       return;
     }

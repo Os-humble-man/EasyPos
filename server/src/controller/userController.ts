@@ -53,19 +53,9 @@ export const userController = {
 
       const token = await generateTokens(user);
 
-        console.log("Token generated:", token); 
-
-      res.cookie("accessToken", token.accessToken, {
-        httpOnly: true,
-        maxAge: 1000 * 60 * 60, // 1 heure
-        path: "/",
-      });
-
-        console.log("Cookie set successfully"); // Log pour déboguer
-
-
       res.status(200).json({
         message: "Login successful",
+        accessToken: token.accessToken,
       });
     } catch (error: Error | any) {
       res

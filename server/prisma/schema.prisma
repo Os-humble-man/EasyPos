@@ -86,19 +86,9 @@ model Users {
   updated_at       DateTime          @default(now()) @db.Timestamp(0)
   logs             Logs[]
   payments         Payments[]
-  refreshTokens    RefreshToken?
   user_permissions UserPermissions[]
   posDevices       PosDevices[]
 }
-
-model RefreshToken {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
-  token     String   @unique
-  expiresAt DateTime
-  user      Users    @relation(fields: [userId], references: [id])
-}
-
 
 enum TaxesType {
   fixed

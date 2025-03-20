@@ -41,15 +41,15 @@ export class JwtHelper {
     }
   }
 
-  static generateRefreshToken(
-    payload: JwtPayload,
-    expiresIn: SignOptions["expiresIn"] = "7d"
-  ): string {
-    const jwtSecretKey = process.env.JWT_SECRET_KEY;
-    if (!jwtSecretKey) {
-      throw new Error("JWT_SECRET_KEY is not defined in .env");
-    }
+  // static generateRefreshToken(
+  //   payload: JwtPayload,
+  //   expiresIn: SignOptions["expiresIn"] = "7d"
+  // ): string {
+  //   const jwtSecretKey = process.env.JWT_SECRET_KEY;
+  //   if (!jwtSecretKey) {
+  //     throw new Error("JWT_SECRET_KEY is not defined in .env");
+  //   }
 
-    return jwt.sign(payload, jwtSecretKey, { expiresIn });
-  }
+  //   return jwt.sign(payload, jwtSecretKey, { expiresIn });
+  // }
 }

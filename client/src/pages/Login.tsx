@@ -38,13 +38,26 @@ export default function LoginPage() {
       setIsLoading(true);
       setErrorMessage(null); // Réinitialiser le message d'erreur
 
-      const response = await UserService.login(data.email, data.password);      
+      // const response = await UserService.login(data.email, data.password);
 
-      if (response.status === 200) {
-        navigate("/dashboard");
-      } else {
-        setErrorMessage("Invalid email or password");
-      }
+      // if (response.status === 200) {
+      //   navigate("/dashboard");
+      // } else {
+      //   setErrorMessage("Invalid email or password");
+      // }
+
+      UserService.login(data.email, data.password)
+        .then((response) => {
+          console.log("Login successful:", response);
+          navigate("/dashboard");
+          // Le token est automatiquement stocké dans le sessionStorage
+        })
+        .catch((error) => {
+          setErrorMessage(
+            error.response?.data?.message || "An error occurred during login"
+          );
+          console.error("Login failed:", error.message);
+        });
     } catch (error: any) {
       console.error(error);
       setErrorMessage(

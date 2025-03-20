@@ -18,18 +18,22 @@ class ApiClient {
       headers: {
         "Content-Type": "application/json",
       },
-      withCredentials: true,
     });
 
     this.AxiosInstance.interceptors.request.use(
-      (config) => config,
+      (config) => {
+        const token = sessionStorage.getItem("accessToken");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
       (error) => {
         console.error("API Request Error: ", error.message);
         return Promise.reject(error);
       }
     );
 
-    // Intercepteur de réponse
     this.AxiosInstance.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -108,4 +112,5 @@ class ApiClient {
 }
 
 const apiClient = new ApiClient();
+
 export default apiClient;

@@ -6,10 +6,6 @@ import dotenv from "dotenv";
 import { logger } from "./_core/Logger";
 import http from "http";
 import { makeApiRouter } from "./routes";
-import session from "express-session";
-import cookieParser from "cookie-parser";
-import pgSession from "connect-pg-simple";
-import { Pool } from "pg";
 
 (async () => {
   try {
@@ -22,13 +18,6 @@ import { Pool } from "pg";
       "https://easy-posdrc.vercel.app",
       "http://localhost:3000",
     ];
-
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-    });
-    const PgSessionStore = pgSession(session);
-
-
 
     app.use(
       cors({
@@ -45,8 +34,14 @@ import { Pool } from "pg";
 
     app.use((req: Request, res: Response, next: NextFunction): void => {
       if (req.method === "OPTIONS") {
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.setHeader(
+          "Access-Control-Allow-Methods",
+          "GET, POST, PUT, DELETE, OPTIONS"
+        );
+        res.setHeader(
+          "Access-Control-Allow-Headers",
+          "Content-Type, Authorization"
+        );
         res.setHeader("Access-Control-Allow-Credentials", "true");
         res.status(204).end();
       } else {
@@ -54,32 +49,29 @@ import { Pool } from "pg";
       }
     });
 
-
-
     app.use(helmet());
     app.use(morgan("dev"));
     app.use(express.json());
-    app.use(cookieParser());
-
-    app.use(
-      session({
-        store: new PgSessionStore({
-          pool: pool,
-          tableName: "session",
-        }),
-        secret: process.env.SESSION_SECRET || "",
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          secure: process.env.NODE_ENV === "production",
-          httpOnly: true,
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-          maxAge: 1000 * 60 * 60 * 24,
-          path: "/",
-          domain: undefined,
-        },
-      })
-    );
+    app.use(express.urlencoded({ extended: true }));
+    // app.use(
+    //   session({
+    //     store: new PgSessionStore({
+    //       pool: pool,
+    //       tableName: "session",
+    //     }),
+    //     secret: process.env.SESSION_SECRET || "",
+    //     resave: false,
+    //     saveUninitialized: false,
+    //     cookie: {
+    //       secure: process.env.NODE_ENV === "production",
+    //       httpOnly: true,
+    //       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    //       maxAge: 1000 * 60 * 60 * 24,
+    //       path: "/",
+    //       domain: undefined,
+    //     },
+    //   })
+    // );
 
     makeApiRouter(app);
 

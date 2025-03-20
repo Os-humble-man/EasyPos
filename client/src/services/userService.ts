@@ -7,7 +7,7 @@ export interface User {
   lastName: string;
   role?: string;
   password?: string;
-  posId?: number | null; 
+  posId?: number | null;
 }
 
 interface LoginResponse {
@@ -16,6 +16,7 @@ interface LoginResponse {
     posId: number;
     role: string;
   };
+  accessToken: string; // Ajout du token dans la réponse
   status: number;
 }
 
@@ -52,7 +53,10 @@ const UserService = {
 
   updateUser: async (user: User): Promise<User> => {
     try {
-      const response = await apiClient.put<User, User>(`/user/${user.id}`, user);
+      const response = await apiClient.put<User, User>(
+        `/user/${user.id}`,
+        user
+      );
       return response.data;
     } catch (error) {
       console.error(`Failed to update user with ID ${user.id}:`, error);
@@ -69,18 +73,38 @@ const UserService = {
     }
   },
 
-  login: async (
-    email: string,
-    password: string
-  ): Promise<LoginResponse> => {
+  login: async (email: string, password: string): Promise<LoginResponse> => {
     try {
-      const response = await apiClient.post<LoginResponse, { email: string; password: string }>(
-        "/auth/login",
-        { email, password }
-      );
-      return { ...response.data, status: response.status }; 
-    } catch (error) {
+      const response = await apiClient.post<
+        LoginResponse,
+        { email: string; password: string }
+      >("/auth/login", { email, password });
+
+      if (response.data.accessToken) {
+        sessionStorage.setItem("accessToken", response.data.accessToken);
+      }
+
+      return { ...response.data, status: response.status };
+    } catch (error: any) {
       console.error("Failed to login:", error);
+
+      if (error.response) {
+        if (error.response.status === 401) {
+          throw new Error("Invalid email or password");
+        } else if (error.response.status === 500) {
+          throw new Error("Internal server error");
+        }
+      }
+
+      throw new Error("An unexpected error occurred");
+    }
+  },
+
+  logout: async (): Promise<void> => {
+    try {
+      sessionStorage.removeItem("accessToken");
+    } catch (error) {
+      console.error("Failed to logout:", error);
       throw error;
     }
   },
