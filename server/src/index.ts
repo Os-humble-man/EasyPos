@@ -19,7 +19,10 @@ import cookieParser from "cookie-parser";
       cors({
         origin:
           process.env.NODE_ENV === "production"
-            ? "https://easypos-production.up.railway.app/health"
+            ? [
+                "https://easypos-production.up.railway.app",
+                "https://easy-lyrsqisd4-oscars-projects-23ef7248.vercel.app"
+              ]
             : "http://localhost:3000",
         credentials: true,
       })
@@ -44,7 +47,7 @@ import cookieParser from "cookie-parser";
           path: "/",
           domain:
             process.env.NODE_ENV === "production"
-              ? "https://easypos-production.up.railway.app"
+              ? "easypos-production.up.railway.app"
               : undefined,
         },
       })
