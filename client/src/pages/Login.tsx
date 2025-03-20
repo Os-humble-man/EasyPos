@@ -38,12 +38,9 @@ export default function LoginPage() {
       setIsLoading(true);
       setErrorMessage(null); // Réinitialiser le message d'erreur
 
-      const response = await UserService.login(data.email, data.password);
-      console.log(response);
-      
+      const response = await UserService.login(data.email, data.password);      
 
       if (response.status === 200) {
-        // Rediriger l'utilisateur vers le tableau de bord
         navigate("/dashboard");
       } else {
         setErrorMessage("Invalid email or password");

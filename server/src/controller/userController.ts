@@ -53,25 +53,31 @@ export const userController = {
 
       const token = await generateTokens(user);
 
+        console.log("Token generated:", token); 
+
       res.cookie("accessToken", token.accessToken, {
         httpOnly: true,
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        maxAge: 1000 * 60 * 60,
+        maxAge: 1000 * 60 * 60, // 1 heure
         path: "/",
       });
+
+        console.log("Cookie set successfully"); // Log pour déboguer
+
 
       res.status(200).json({
         message: "Login successful",
       });
     } catch (error: Error | any) {
-      res.status(500).json({ message: "Internal server error "+ error + error?.message });
+      res
+        .status(500)
+        .json({ message: "Internal server error " + error + error?.message });
       logger.error(error);
     }
   },
 
   refresh: async (req: Request, res: Response): Promise<void> => {
     logger.info("Refresh token");
-    
+
     try {
       const refreshToken = await userModel.getRefreshTokenById(req.userId);
       if (!refreshToken) {
