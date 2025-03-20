@@ -14,7 +14,7 @@ export const authenticate = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.cookies._vercel_jwt;
+  const token = req.cookies.accessToken;
 
   if (!token) {
     res.status(401).json({ message: "Access forbidden: No token provided" });
