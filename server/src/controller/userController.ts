@@ -71,8 +71,9 @@ export const userController = {
 
   refresh: async (req: Request, res: Response): Promise<void> => {
     logger.info("Refresh token");
-    const { refreshToken } = req.body;
+    
     try {
+      const refreshToken = await userModel.getRefreshTokenById(req.userId);
       if (!refreshToken) {
         res.status(403).json({ message: "Refresh token required" });
         return;

@@ -8,7 +8,7 @@ userRouter.post("/auth/login", userController.login);
 userRouter.post("/auth/register", authenticate, userController.createUser);
 userRouter.get("/auth/check", authenticate, userController.isAuthenticated);
 
-userRouter.post("/auth/refresh-token", userController.refresh);
+userRouter.post("/auth/refresh-token",authenticate, userController.refresh);
 userRouter.get("/users", authenticate, userController.getUsers);
 
 export default userRouter;

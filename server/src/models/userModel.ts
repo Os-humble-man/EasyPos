@@ -124,4 +124,15 @@ export const userModel = {
       return null;
     }
   },
+  getRefreshTokenById: async (id: any): Promise<string | null> => {
+    try {
+      const refreshToken =  await prisma.refreshToken.findUnique({
+        where: { userId: id },
+      });
+      return refreshToken?.token || null;
+    } catch (error: any) {
+      console.error("Failed to get refresh token by id", error);
+      return null;
+    }
+  },
 };
