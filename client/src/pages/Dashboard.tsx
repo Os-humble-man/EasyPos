@@ -47,7 +47,7 @@ export default function DashboardPage() {
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      denomination: "inflammable", // Valeur par défaut
+      denomination: "inflammable",
     },
   });
 
@@ -69,7 +69,6 @@ export default function DashboardPage() {
           denominationValue === "inflammable" ? undefined : denominationValue,
       };
       const response = await PaymentService.createPayment(payment);
-      console.log(response);
 
       if (response) {
         toast("Paiement effectué avec succès.");

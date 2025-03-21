@@ -20,7 +20,6 @@ export const PaymentController = {
       return;
     }
 
-    console.log(req.body);
     try {
       const data = {
         noPlaque: req.body.noPlaque,
@@ -44,20 +43,20 @@ export const PaymentController = {
       logger.error(error);
     }
   },
-  // getPaymentById: async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const paymentId = parseInt(req.params.id);
-  //     const payment = await paymentModel.getPaymentById(paymentId);
-  //     if (!payment) {
-  //       res.status(HttpStatus.NOT_FOUND).send({ message: "Payment not found" });
-  //       return;
-  //     }
-  //     res.json(payment);
-  //   } catch (error) {
-  //     next(error);
-  //     logger.error(error);
-  //   }
-  // },
+  getPaymentById: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const paymentId = parseInt(req.params.id);
+      const payment = await paymentModel.getPaymentById(paymentId);
+      if (!payment) {
+        res.status(HttpStatus.NOT_FOUND).send({ message: "Payment not found" });
+        return;
+      }
+      res.json(payment);
+    } catch (error) {
+      next(error);
+      logger.error(error);
+    }
+  },
 
   getTotalAmount: async (req: Request, res: Response, next: NextFunction) => {
     try {

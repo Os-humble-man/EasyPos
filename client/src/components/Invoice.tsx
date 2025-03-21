@@ -171,7 +171,9 @@ export default function InvoicePage() {
               <p>
                 {invoice.agent?.name}{" "}
                 {invoice.agent && (
-                  <span className="capitalize">{invoice.agent.last_name[0]}</span>
+                  <span className="capitalize">
+                    {invoice.agent.last_name[0]}
+                  </span>
                 )}
                 .
               </p>
