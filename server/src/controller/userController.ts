@@ -91,6 +91,15 @@ export const userController = {
     }
   },
 
+  countUsers: async (req: Request, res: Response) => {
+    try {
+      const count = await userModel.countUsers();
+      res.status(200).json({ count });
+    } catch (error: Error | any) {
+      logger.error(error);
+    }
+  },
+
   isAuthenticated: (req: Request, res: Response, next: NextFunction): void => {
     if (!req.userId || !req.posId || !req.role) {
       res.status(401).json({

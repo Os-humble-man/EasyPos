@@ -22,14 +22,16 @@ export const PaymentController = {
     try {
       const data = {
         noPlaque: req.body.noPlaque,
-        tax_id: parseInt(req.body.denomination),
+        tax_id: 1,
         agent_id: req.userId,
         pos_id: req.posId,
         amount: req.body.montant,
         reason: req.body.motif,
       };
+
       const validatedData = paymentSchema.parse(data);
       const newPayment = await paymentModel.createPayment(validatedData);
+
       res.status(201).json(newPayment);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -49,6 +51,36 @@ export const PaymentController = {
         return;
       }
       res.json(payment);
+    } catch (error) {
+      next(error);
+      logger.error(error);
+    }
+  },
+
+  getTotalAmount: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const totalAmount = await paymentModel.getTotalAmount();
+      res.json({ totalAmount });
+    } catch (error) {
+      next(error);
+      logger.error(error);
+    }
+  },
+
+  getTotalTrans: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const totalTransaction = await paymentModel.getTransactionStats();
+      res.json({ totalTransaction });
+    } catch (error) {
+      next(error);
+      logger.error(error);
+    }
+  },
+
+  getAllPayments: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const payments = await paymentModel.getAllPayments();
+      res.json(payments);
     } catch (error) {
       next(error);
       logger.error(error);

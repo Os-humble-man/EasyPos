@@ -1,15 +1,11 @@
-"use client";
-
 import { useState } from "react";
-import { LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-
 import * as yup from "yup";
-
 import {
   Card,
   CardContent,
@@ -48,9 +44,15 @@ export default function DashboardPage() {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm({
     resolver: yupResolver(schema),
+    defaultValues: {
+      denomination: "inflammable", // Valeur par défaut
+    },
   });
+
+  const denominationValue = watch("denomination");
 
   const onSubmit = async (data: {
     noPlaque: string;
@@ -60,13 +62,13 @@ export default function DashboardPage() {
   }) => {
     setIsSubmitting(true);
     try {
-
       const payment = {
-          noPlaque: data.noPlaque,
-          amount: data.montant,
-          reason: data.motif,
-          tax_id:data.denomination
-      }
+        noPlaque: data.noPlaque,
+        amount: data.montant,
+        reason: data.motif,
+        denomination:
+          denominationValue === "inflammable" ? undefined : denominationValue,
+      };
       const response = await PaymentService.createPayment(payment);
       console.log(response);
 
@@ -104,10 +106,6 @@ export default function DashboardPage() {
                 <LogOut className="h-5 w-5" />
                 <span className="sr-only">Logout</span>
               </Button>
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-                <span className="sr-only">User</span>
-              </Button>
             </div>
           </div>
         </header>
@@ -117,31 +115,21 @@ export default function DashboardPage() {
               <h2 className="text-2xl font-bold tracking-tight">
                 Welcome, User
               </h2>
-              {/* <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="gap-1">
-                  <Receipt className="h-4 w-4" />
-                  View History
-                </Button>
-                <Button size="sm" className="gap-1">
-                  <Plus className="h-4 w-4" />
-                  New Payment
-                </Button>
-              </div> */}
             </div>
 
             <Tabs defaultValue="new-payment" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="new-payment">New Payment</TabsTrigger>
+                <TabsTrigger value="new-payment">Nouvelle paiement</TabsTrigger>
                 <TabsTrigger value="payment-history">
-                  Payment History
+                  Historique des paiement
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="new-payment" className="mt-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Tax Payment Form</CardTitle>
+                    <CardTitle>Formulaire de paiement</CardTitle>
                     <CardDescription>
-                      Fill in the details to process your tax payment
+                      Veuillez completez les informations ci-dessous
                     </CardDescription>
                   </CardHeader>
                   <div className="flex justify-center items-center min-h-1/2 bg-gray-100 p-4">
@@ -149,7 +137,6 @@ export default function DashboardPage() {
                       onSubmit={handleSubmit(onSubmit)}
                       className="w-full max-w-md bg-white p-6 rounded-lg shadow-md"
                     >
-                      {/* Champ No Plaque */}
                       <div className="mb-4">
                         <label
                           htmlFor="noPlaque"
@@ -187,7 +174,7 @@ export default function DashboardPage() {
                         <Controller
                           name="denomination"
                           control={control}
-                          defaultValue=""
+                          defaultValue="inflammable"
                           render={({ field }) => (
                             <Select
                               onValueChange={field.onChange}
@@ -197,7 +184,9 @@ export default function DashboardPage() {
                                 <SelectValue placeholder="Sélectionnez une taxe" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="1">Energie</SelectItem>
+                                <SelectItem value="inflammable">
+                                  Inflammable
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           )}
@@ -209,7 +198,6 @@ export default function DashboardPage() {
                         )}
                       </div>
 
-                      {/* Champ Montant */}
                       <div className="mb-4">
                         <label
                           htmlFor="montant"
@@ -264,7 +252,6 @@ export default function DashboardPage() {
                         )}
                       </div>
 
-                      {/* Bouton de soumission */}
                       <Button type="submit" className="w-full">
                         {isSubmitting ? "Processing..." : "Paiment"}
                       </Button>
@@ -275,9 +262,9 @@ export default function DashboardPage() {
               <TabsContent value="payment-history" className="mt-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Payment History</CardTitle>
+                    <CardTitle>Historique des paiement</CardTitle>
                     <CardDescription>
-                      View your recent tax payments
+                      Historique des paiements effectués
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -285,11 +272,9 @@ export default function DashboardPage() {
                       <div className="hidden md:grid md:grid-cols-5 p-4 font-medium">
                         <div>Date</div>
                         <div>Reference</div>
-                        <div>Tax Type</div>
-                        <div>Amount</div>
-                        <div>Status</div>
+                        <div>Montant</div>
                       </div>
-                      <Separator className="hidden md:block" />
+                      {/* <Separator className="hidden md:block" />
                       <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
                         <div className="font-medium md:hidden">Date</div>
                         <div>2025-03-10</div>
@@ -304,10 +289,9 @@ export default function DashboardPage() {
                           Completed
                         </div>
                       </div>
-                      <Separator />
+                      <Separator /> */}
 
-                      {/* Ligne 2 */}
-                      <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
+                      {/* <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
                         <div className="font-medium md:hidden">Date</div>
                         <div>2025-02-15</div>
                         <div className="font-medium md:hidden">Reference</div>
@@ -321,10 +305,9 @@ export default function DashboardPage() {
                           Completed
                         </div>
                       </div>
-                      <Separator />
+                      <Separator /> */}
 
-                      {/* Ligne 3 */}
-                      <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
+                      {/* <div className="grid grid-cols-1 md:grid-cols-5 p-4 gap-2 md:gap-0">
                         <div className="font-medium md:hidden">Date</div>
                         <div>2025-01-20</div>
                         <div className="font-medium md:hidden">Reference</div>
@@ -337,7 +320,7 @@ export default function DashboardPage() {
                         <div className="text-green-500 md:col-span-1">
                           Completed
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </CardContent>
                 </Card>

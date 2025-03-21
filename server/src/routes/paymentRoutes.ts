@@ -10,4 +10,22 @@ paymentRouter.get(
   PaymentController.getPaymentById
 );
 
+paymentRouter.get(
+  "/payment/total",
+  authenticate,
+  PaymentController.getTotalAmount
+);
+
+paymentRouter.get(
+  "/payment/total_transactions",
+  authenticate,
+  PaymentController.getTotalTrans
+);
+
+paymentRouter.get(
+  "/payment/all",
+  authenticate,
+  PaymentController.getAllPayments
+);
+
 export default paymentRouter;

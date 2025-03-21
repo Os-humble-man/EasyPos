@@ -22,9 +22,12 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<LoginPage />} />
+        {/* <Route path="/register" element={<RegisterPage />} /> */}
+
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
 
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -69,18 +69,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Link to="/" className="absolute left-4 top-4 md:left-8 md:top-8">
+    <div className=" flex h-screen w-screen flex-col items-center justify-center p-4">
+      {/* <Link to="/" className="absolute left-4 top-4 md:left-8 md:top-8">
         <Button variant="ghost" className="gap-1">
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
-      </Link>
+      </Link> */}
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Connexion</CardTitle>
           <CardDescription>
-            Enter your email and password to access your account
+            Entrer votre email et votre mot de passe
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -102,7 +102,7 @@ export default function LoginPage() {
                     {...field}
                     id="email"
                     type="email"
-                    placeholder="m@example.com"
+                    placeholder="email@exemple.com"
                   />
                 )}
               />
@@ -141,7 +141,7 @@ export default function LoginPage() {
                   Please wait
                 </>
               ) : (
-                "Sign In"
+                "Se Connecter"
               )}
             </Button>
           </CardFooter>
@@ -150,7 +150,7 @@ export default function LoginPage() {
       {errorMessage && (
         <p className="text-red-500 text-sm text-center mt-4">{errorMessage}</p>
       )}
-      <p className="mt-4 text-center text-sm text-muted-foreground">
+      {/* <p className="mt-4 text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link
           to="/register"
@@ -158,7 +158,7 @@ export default function LoginPage() {
         >
           Register
         </Link>
-      </p>
+      </p> */}
     </div>
   );
 }

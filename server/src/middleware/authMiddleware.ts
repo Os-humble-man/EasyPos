@@ -30,9 +30,6 @@ export const authenticate = (
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-
-    console.log("Decoded token:", decoded);
-
     req.userId = decoded.user.userId;
     req.posId = decoded.user.posId || null;
     req.role = decoded.user.role;

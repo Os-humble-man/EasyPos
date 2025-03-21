@@ -126,6 +126,14 @@ export const userModel = {
       return null;
     }
   },
+  countUsers: async (): Promise<number> => {
+    try {
+      return await prisma.users.count();
+    } catch (error: any) {
+      console.error("Failed to count users", error);
+      throw new Error("An error occurred while counting users");
+    }
+  },
   // getRefreshTokenById: async (id: any): Promise<string | null> => {
   //   try {
   //     const refreshToken = await prisma.refreshToken.findUnique({
