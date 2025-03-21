@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Calendar, FileText } from "lucide-react";
+// import { useState } from "react";
+import { Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -20,88 +20,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Layout from "@/layout/PageLayout";
+import { usePayment } from "@/hooks/usePayment";
+import moment from "moment";
 
 export default function AdminDashboardPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // Mock data for transactions
-  const transactions = [
-    {
-      id: 1,
-      user: "John Doe",
-      email: "john@example.com",
-      date: "2025-03-10",
-      reference: "TX-12345",
-      type: "Income Tax",
-      amount: 1250.0,
-      status: "Completed",
-    },
-    {
-      id: 2,
-      user: "Jane Smith",
-      email: "jane@example.com",
-      date: "2025-03-09",
-      reference: "TX-12344",
-      type: "Property Tax",
-      amount: 850.0,
-      status: "Completed",
-    },
-    {
-      id: 3,
-      user: "Robert Johnson",
-      email: "robert@example.com",
-      date: "2025-03-08",
-      reference: "TX-12343",
-      type: "VAT",
-      amount: 320.0,
-      status: "Completed",
-    },
-    {
-      id: 4,
-      user: "Sarah Williams",
-      email: "sarah@example.com",
-      date: "2025-03-07",
-      reference: "TX-12342",
-      type: "Sales Tax",
-      amount: 540.0,
-      status: "Pending",
-    },
-    {
-      id: 5,
-      user: "Michael Brown",
-      email: "michael@example.com",
-      date: "2025-03-06",
-      reference: "TX-12341",
-      type: "Income Tax",
-      amount: 1800.0,
-      status: "Completed",
-    },
-    {
-      id: 6,
-      user: "Emily Davis",
-      email: "emily@example.com",
-      date: "2025-03-05",
-      reference: "TX-12340",
-      type: "Property Tax",
-      amount: 920.0,
-      status: "Failed",
-    },
-  ];
+  // const [searchTerm, setSearchTerm] = useState("");
+  const { payments, totalAmount, totalPer } = usePayment();
 
   // Filter transactions based on search term
-  const filteredTransactions = transactions.filter(
-    (transaction) =>
-      transaction.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredTransactions = transactions.filter(
+  //   (transaction) =>
+  //     transaction.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     transaction.type.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
-  const printInvoice = (id: number) => {
-    console.log(`Printing invoice for transaction ${id}`);
-    // In a real application, this would generate and print an invoice
-    alert(`Invoice for transaction ${id} is being prepared for printing.`);
-    setSearchTerm("");
-  };
+  // const printInvoice = (id: number) => {
+  //   console.log(`Printing invoice for transaction ${id}`);
+  //   // In a real application, this would generate and print an invoice
+  //   alert(`Invoice for transaction ${id} is being prepared for printing.`);
+  //   setSearchTerm("");
+  // };
 
   return (
     <Layout>
@@ -136,9 +75,11 @@ export default function AdminDashboardPage() {
               </svg>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$5,680.00</div>
+              <div className="text-2xl font-bold">
+                {totalAmount?.toFixed(2)} FC
+              </div>
               <p className="text-xs text-muted-foreground">
-                +20.1% from last month
+                +{totalPer}% from last month
               </p>
             </CardContent>
           </Card>
@@ -199,46 +140,49 @@ export default function AdminDashboardPage() {
 
         <Tabs defaultValue="all" className="mt-6">
           <TabsList>
-            <TabsTrigger value="all">All Transactions</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
+            {/* <TabsTrigger value="all">Toutes les transaction</TabsTrigger> */}
+            {/* <TabsTrigger value="completed">Completed</TabsTrigger>
             <TabsTrigger value="pending">Pending</TabsTrigger>
-            <TabsTrigger value="failed">Failed</TabsTrigger>
+            <TabsTrigger value="failed">Failed</TabsTrigger> */}
           </TabsList>
           <TabsContent value="all" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>All Transactions</CardTitle>
+                <CardTitle>Toutes les Transactions</CardTitle>
                 <CardDescription>
-                  View all tax payment transactions from users
+                  Voir tout les transactions effectuee par les agent
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>User</TableHead>
+                      <TableHead>Plaque</TableHead>
+                      <TableHead>Nom agent</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Reference</TableHead>
-                      <TableHead>Tax Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
+                      <TableHead>Denomination</TableHead>
+                      <TableHead>Montant</TableHead>
+                      {/* <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead> */}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredTransactions.map((transaction) => (
+                    {payments.map((transaction: any) => (
                       <TableRow key={transaction.id}>
+                        <TableCell>{transaction.noPlaque}</TableCell>
+                        <TableCell>{`${transaction.agent?.name} ${transaction.agent?.last_name} `}</TableCell>
                         <TableCell>
-                          <div className="font-medium">{transaction.user}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {transaction.email}
-                          </div>
+                          {moment(transaction?.payment_date).format(
+                            "DD-MM-YY HH:mm"
+                          )}
                         </TableCell>
-                        <TableCell>{transaction.date}</TableCell>
-                        <TableCell>{transaction.reference}</TableCell>
-                        <TableCell>{transaction.type}</TableCell>
-                        <TableCell>${transaction.amount.toFixed(2)}</TableCell>
+                        <TableCell>{transaction?.reference}</TableCell>
+                        <TableCell>{transaction.tax?.name}</TableCell>
                         <TableCell>
+                          {parseInt(transaction.amount, 10).toFixed(2)}FC
+                        </TableCell>
+                        {/* <TableCell>
                           <span
                             className={
                               transaction.status === "Completed"
@@ -250,8 +194,8 @@ export default function AdminDashboardPage() {
                           >
                             {transaction.status}
                           </span>
-                        </TableCell>
-                        <TableCell>
+                        </TableCell> */}
+                        {/* <TableCell>
                           <Button
                             variant="outline"
                             size="sm"
@@ -261,7 +205,7 @@ export default function AdminDashboardPage() {
                             <FileText className="h-4 w-4" />
                             <span className="sr-only">Print Invoice</span>
                           </Button>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -269,7 +213,7 @@ export default function AdminDashboardPage() {
               </CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="completed" className="mt-4">
+          {/* <TabsContent value="completed" className="mt-4">
             <Card>
               <CardHeader>
                 <CardTitle>Completed Transactions</CardTitle>
@@ -439,7 +383,7 @@ export default function AdminDashboardPage() {
                 </Table>
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </main>
     </Layout>

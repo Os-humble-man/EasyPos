@@ -1,3 +1,4 @@
+import { date } from "joi";
 import prisma from "../_core/database";
 import { logger } from "../_core/Logger";
 
@@ -43,55 +44,55 @@ export const paymentModel = {
     }
   },
 
-  getPaymentById: async (id: number) => {
-    try {
-      const payment = await prisma.payments.findUnique({
-        where: { id },
-        include: {
-          users: true,
-          pos_devices: true,
-          taxes: true,
-        },
-      });
+  // getPaymentById: async (id: number) => {
+  //   try {
+  //     const payment = await prisma.payments.findUnique({
+  //       where: { id },
+  //       include: {
+  //         users: true,
+  //         pos_devices: true,
+  //         taxes: true,
+  //       },
+  //     });
 
-      if (!payment) {
-        throw new Error("Payment not found");
-      }
+  //     if (!payment) {
+  //       throw new Error("Payment not found");
+  //     }
 
-      return {
-        id: payment.id,
-        noPlaque: payment.noPlaque,
-        amount: payment.amount,
-        reason: payment.reason,
-        payment_method: payment.payment_method,
-        payment_date: payment.payment_date,
-        reference: payment.reference,
-        agent: {
-          id: payment.users.id,
-          name: payment.users.name,
-          last_name: payment.users.last_name,
-          email: payment.users.email,
-        },
-        pos: {
-          id: payment.pos_devices.id,
-          device_name: payment.pos_devices.device_name,
-          location: payment.pos_devices.location,
-          status: payment.pos_devices.status,
-        },
-        tax: {
-          id: payment.taxes.id,
-          name: payment.taxes.name,
-          type: payment.taxes.type,
-          amount: payment.taxes.amount,
-        },
-      };
-    } catch (error: any) {
-      logger.error(error);
-      throw new Error(
-        error.message || "An error occurred while fetching the payment"
-      );
-    }
-  },
+  //     return {
+  //       id: payment.id,
+  //       noPlaque: payment.noPlaque,
+  //       amount: payment.amount,
+  //       reason: payment.reason,
+  //       payment_method: payment.payment_method,
+  //       payment_date: payment.payment_date,
+  //       reference: payment.reference,
+  //       agent: {
+  //         id: payment.users.id,
+  //         name: payment.users.name,
+  //         last_name: payment.users.last_name,
+  //         email: payment.users.email,
+  //       },
+  //       pos: {
+  //         id: payment.pos_devices.id,
+  //         device_name: payment.pos_devices.device_name,
+  //         location: payment.pos_devices.location,
+  //         status: payment.pos_devices.status,
+  //       },
+  //       tax: {
+  //         id: payment.taxes.id,
+  //         name: payment.taxes.name,
+  //         type: payment.taxes.type,
+  //         amount: payment.taxes.amount,
+  //       },
+  //     };
+  //   } catch (error: any) {
+  //     logger.error(error);
+  //     throw new Error(
+  //       error.message || "An error occurred while fetching the payment"
+  //     );
+  //   }
+  // },
 
   getTotalAmount: async (): Promise<{
     totalAmount: number;

@@ -16,6 +16,8 @@ export const authenticate = (
 ) => {
   const authHeader = req.headers.authorization;
 
+  console.log(req.body);
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(401).json({ message: "Access forbidden: No token provided" });
     return;

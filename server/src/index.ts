@@ -16,7 +16,7 @@ import { makeApiRouter } from "./routes";
     const allowedOrigins = [
       "https://easypos-production.up.railway.app",
       "https://easy-posdrc.vercel.app",
-      "http://localhost:3000",
+      "http://localhost:5173",
     ];
 
     app.use(

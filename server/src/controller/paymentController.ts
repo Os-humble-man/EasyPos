@@ -19,14 +19,16 @@ export const PaymentController = {
       res.status(HttpStatus.BAD_REQUEST).send({ message: "Bad request" });
       return;
     }
+
+    console.log(req.body);
     try {
       const data = {
         noPlaque: req.body.noPlaque,
         tax_id: 1,
         agent_id: req.userId,
         pos_id: req.posId,
-        amount: req.body.montant,
-        reason: req.body.motif,
+        amount: req.body.amount,
+        reason: req.body.reason,
       };
 
       const validatedData = paymentSchema.parse(data);
@@ -42,20 +44,20 @@ export const PaymentController = {
       logger.error(error);
     }
   },
-  getPaymentById: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const paymentId = parseInt(req.params.id);
-      const payment = await paymentModel.getPaymentById(paymentId);
-      if (!payment) {
-        res.status(HttpStatus.NOT_FOUND).send({ message: "Payment not found" });
-        return;
-      }
-      res.json(payment);
-    } catch (error) {
-      next(error);
-      logger.error(error);
-    }
-  },
+  // getPaymentById: async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const paymentId = parseInt(req.params.id);
+  //     const payment = await paymentModel.getPaymentById(paymentId);
+  //     if (!payment) {
+  //       res.status(HttpStatus.NOT_FOUND).send({ message: "Payment not found" });
+  //       return;
+  //     }
+  //     res.json(payment);
+  //   } catch (error) {
+  //     next(error);
+  //     logger.error(error);
+  //   }
+  // },
 
   getTotalAmount: async (req: Request, res: Response, next: NextFunction) => {
     try {

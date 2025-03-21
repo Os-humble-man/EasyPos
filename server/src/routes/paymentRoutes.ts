@@ -4,11 +4,11 @@ import { authenticate } from "../middleware/authMiddleware";
 
 const paymentRouter = Router();
 paymentRouter.post("/payment", authenticate, PaymentController.createPayment);
-paymentRouter.get(
-  "/payment/:id",
-  authenticate,
-  PaymentController.getPaymentById
-);
+// paymentRouter.get(
+//   "/payment/:id",
+//   authenticate,
+//   PaymentController.getPaymentById
+// );
 
 paymentRouter.get(
   "/payment/total",
@@ -22,10 +22,6 @@ paymentRouter.get(
   PaymentController.getTotalTrans
 );
 
-paymentRouter.get(
-  "/payment/all",
-  authenticate,
-  PaymentController.getAllPayments
-);
+paymentRouter.get("/payments", authenticate, PaymentController.getAllPayments);
 
 export default paymentRouter;
