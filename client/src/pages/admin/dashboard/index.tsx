@@ -185,7 +185,8 @@ export default function AdminDashboardPage() {
                         <TableCell>{transaction?.reference}</TableCell>
                         <TableCell>{transaction.tax?.name}</TableCell>
                         <TableCell>
-                          {transaction.amount ? transaction.amount.toFixed(2) : '0.00'}FC
+                          {/* {transaction.amount ? transaction.amount.toFixed(2) : '0.00'} */}
+                          FC
                         </TableCell>
                         {/* <TableCell>
                           <span
