@@ -1,7 +1,7 @@
-import PaymentService from "@/services/PaymentService";
 import { useEffect, useState } from "react";
+import PaymentService from "@/services/PaymentService";
 
-interface Payment {
+export interface Payment {
   id?: number;
   noPlaque?: string;
   amount?: number;
@@ -22,83 +22,30 @@ interface Payment {
   payment_date?: string;
 }
 
-export interface TotalAmountResponse {
-  totalAmount: {
-    totalAmount: number;
-    percentageChange: number;
-  };
-}
-
-export const usePayment = () => {
+export const useFetchPayments = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
-  // const [totalTransaction, setTotalTransaction] = useState<number>(0);
-  const [totalPer, setTotalPer] = useState<number>(0);
-  const [totalAmount, setTotalAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchPayment = async (): Promise<Payment[]> => {
-    try {
-      const data = await PaymentService.getAllPayments();
-      return data;
-    } catch (error: any) {
-      setError(error.message || "An error occurred while fetching payments.");
-      throw error;
-    }
-  };
-
-  const fetchTotal = async (): Promise<TotalAmountResponse> => {
-    try {
-      const data = await PaymentService.getPayTotal();
-      return data; // Assurez-vous que data est de type TotalAmountResponse
-    } catch (error: any) {
-      setError(
-        error.message || "An error occurred while fetching total amount."
-      );
-      throw error;
-    }
-  };
-
-  // const fetchTransactionTotal = async (): Promise<number> => {
-  //   try {
-  //     const data = await PaymentService.getTransactionTotal();
-  //     return data;
-  //   } catch (error: any) {
-  //     setError(
-  //       error.message || "An error occurred while fetching total transactions."
-  //     );
-  //     throw error;
-  //   }
-  // };
-
   useEffect(() => {
-    const fetchPaymentData = async () => {
+    const fetchPayments = async () => {
       try {
-        const [paymentRes, amountRes] = await Promise.all([
-          fetchPayment(),
-          fetchTotal(),
-        ]);
-
-        setPayments(paymentRes);
-        console.log(amountRes.totalAmount); // Vérifiez la structure de amountRes dans la console
-        setTotalAmount(amountRes.totalAmount.totalAmount); // Accédez à la valeur correcte
-        setTotalPer(amountRes.totalAmount.percentageChange);
-      } catch (error) {
-        console.error(error);
+        const data = await PaymentService.getAllPayments();
+        setPayments(data);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          setError("An unknown error occurred while fetching payments.");
+        } else {
+          setError("An unknown error occurred while fetching payments.");
+        }
+        setError((error as Error).message || "An error occurred while fetching payments.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPaymentData();
+    fetchPayments();
   }, []);
 
-  return {
-    payments,
-    totalAmount,
-    totalPer,
-    // totalTransaction,
-    loading,
-    error,
-  };
+  return { payments, loading, error };
 };

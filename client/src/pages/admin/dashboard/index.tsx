@@ -1,8 +1,8 @@
 "use client";
 
 // import { useState } from "react";
-import { Calendar } from "lucide-react";
-import { Button } from "@/components/ui/button";
+// import { Calendar } from "lucide-react";
+// import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -20,12 +20,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Layout from "@/layout/PageLayout";
-import { usePayment } from "@/hooks/usePayment";
+// import { usePayment } from "@/hooks/usePayment";
 import moment from "moment";
+import { Payment, useFetchPayments } from "@/hooks/usePayment";
+import useFetchTotal from "@/hooks/useFechTotal";
 
 export default function AdminDashboardPage() {
   // const [searchTerm, setSearchTerm] = useState("");
-  const { payments, totalAmount, totalPer } = usePayment();
+  // const { payments, totalAmount, totalPer } = usePayment();
+  const { payments } = useFetchPayments();
+  const {totalAmount, stat} = useFetchTotal();
 
   // Filter transactions based on search term
   // const filteredTransactions = transactions.filter(
@@ -47,12 +51,12 @@ export default function AdminDashboardPage() {
       <main className="flex-1 p-4 lg:p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" className="gap-1">
               <Calendar className="h-4 w-4" />
               Select Date Range
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid gap-4 md:grid-cols-3 lg:gap-8 mt-6">
@@ -76,10 +80,10 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {totalAmount?.toFixed(2)} FC
+                {Number(totalAmount).toFixed(2)} FC
               </div>
               <p className="text-xs text-muted-foreground">
-                +{totalPer}% from last month
+                +{stat}% from last month
               </p>
             </CardContent>
           </Card>
@@ -168,7 +172,7 @@ export default function AdminDashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {payments.map((transaction: any) => (
+                    {payments.map((transaction: Payment) => (
                       <TableRow key={transaction.id}>
                         <TableCell>{transaction.noPlaque}</TableCell>
                         <TableCell>{`${transaction.agent?.name} ${transaction.agent?.last_name} `}</TableCell>
@@ -180,7 +184,7 @@ export default function AdminDashboardPage() {
                         <TableCell>{transaction?.reference}</TableCell>
                         <TableCell>{transaction.tax?.name}</TableCell>
                         <TableCell>
-                          {parseInt(transaction.amount, 10).toFixed(2)}FC
+                          {transaction.amount ? transaction.amount.toFixed(2) : '0.00'}FC
                         </TableCell>
                         {/* <TableCell>
                           <span
