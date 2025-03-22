@@ -23,13 +23,13 @@ import Layout from "@/layout/PageLayout";
 // import { usePayment } from "@/hooks/usePayment";
 import moment from "moment";
 import { Payment, useFetchPayments } from "@/hooks/usePayment";
-import useFetchTotal from "@/hooks/useFechTotal";
+// import useFetchTotal from "@/hooks/useFechTotal";
 
 export default function AdminDashboardPage() {
   // const [searchTerm, setSearchTerm] = useState("");
   // const { payments, totalAmount, totalPer } = usePayment();
   const { payments } = useFetchPayments();
-  const {totalAmount, stat} = useFetchTotal();
+  // const {totalAmount, stat} = useFetchTotal();
 
   // Filter transactions based on search term
   // const filteredTransactions = transactions.filter(
@@ -80,10 +80,11 @@ export default function AdminDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {Number(totalAmount).toFixed(2)} FC
+                {/* {Number(totalAmount).toFixed(2)} */}
+                 0 FC
               </div>
               <p className="text-xs text-muted-foreground">
-                +{stat}% from last month
+                {/* +{stat}% from last month */}
               </p>
             </CardContent>
           </Card>
