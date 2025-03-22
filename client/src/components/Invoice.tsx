@@ -39,9 +39,18 @@ export default function InvoicePage() {
     }
   };
 
-  useEffect(() => {
+   useEffect(() => {
     if (id) {
-      fetchInvoiceDetails(Number(id));
+      const invoiceId = Number(id);
+      if (!isNaN(invoiceId)) {
+        fetchInvoiceDetails(invoiceId);
+      } else {
+        setError("ID de facture invalide");
+        setLoading(false);
+      }
+    } else {
+      setError("Aucun ID de facture fourni");
+      setLoading(false);
     }
   }, [id]);
 
